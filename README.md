@@ -21,7 +21,7 @@ $ docker-compose build
 
 Build the static files and populate the volume with them:
 ```
-$ docker-compose -f docker/compose/smwebsite/docker-compose.yml run smwebsite
+$ docker-compose run smartcity
 ```
 
 Restart the service:
