@@ -25,20 +25,21 @@ SECRET_KEY = '=8^le-6+6tow8(8iwsn3y2g5hn9#u(z7$2e+05b$sm@us9@r9='
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
 
 INSTALLED_APPS = [
-    'usuarios',
-    'rest_framework',
+    # 'django_dbconn_retry',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'usuarios',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -75,13 +76,14 @@ WSGI_APPLICATION = 'smarttraffic_server.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 #
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'postgres',
         'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'HOST': 'db',
+        'PASSWORD': 'example',
+        'HOST': 'postgres-db',
         'PORT': '5432',
     }
 }
@@ -124,5 +126,3 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
-
-ALLOWED_HOSTS = ['*']
