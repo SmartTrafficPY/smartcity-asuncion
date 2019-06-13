@@ -1,9 +1,18 @@
 version: '3'
 
 services:
-  db:
-    image: postgres:10
-  smartcity:
+  postgres-db:
+    image: mdillon/postgis:10
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: example
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - django_conn
+  django-server:
     build: .
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
@@ -11,5 +20,10 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - db
-      
+      - postgres-db
+    networks:
+      - django_conn
+    restart: always
+networks:
+  django_conn:
+    driver: bridge
