@@ -13,9 +13,3 @@ psql gis -c "CREATE EXTENSION IF NOT EXISTS postgis;"
 psql gis -c "CREATE EXTENSION IF NOT EXISTS postgis_topology;"
 psql gis -c "CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;"
 psql gis -c "CREATE EXTENSION IF NOT EXISTS postgis_tiger_geocoder;"
-
-## restore database if dump file exists
-#if [ -f /opt/backups/restore.dump ]; then
-#  echo "Restoring backup..."
-#  pg_restore -d gis --clean --if-exists /opt/backups/restore.dump
-#fi
