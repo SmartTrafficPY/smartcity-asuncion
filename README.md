@@ -3,8 +3,8 @@ La plataforma del servidor del proyecto SmartTraffic
 
 ## INSTALL
 
-Docker: 18.03+
-Docker Compose: 1.13.0+
+Docker: 18.03 +
+Docker Compose: 1.13.0 +
 Check that you have the correct docker version, with docker compose too,
 if you have linux OS, you have to do it separately:
 ```
@@ -24,7 +24,7 @@ $ docker-compose build
 
 Build the static files and populate the volume with them:
 ```
-$ docker-compose run smartcity
+$ docker-compose run
 ```
 
 Restart the service:
