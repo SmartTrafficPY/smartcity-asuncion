@@ -1,5 +1,5 @@
 FROM postgres:10
-##MAINTAINER Joaquin Olivera <joaquin.olivera@uc.edu.py>
+##MAINTAINER Joaquin Olivera <joaquin.olivera@edu.uc.py>
 
 ENV POSTGIS_MAJOR 2.5
 ENV POSTGIS_VERSION 2.5.2+dfsg-1~exp1.pgdg90+1
