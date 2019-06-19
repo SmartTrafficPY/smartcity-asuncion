@@ -17,7 +17,8 @@ docker-compose version 1.20.1, build 0429c243o2
 If not installed yet, follow the official guide in https://docs.docker.com/install/ and docker-compose here: https://docs.docker.com/compose/install/
 
 ## Deployment
-First of all, you need to put some environments variables in a `.env` file inside `postgres-db` directory, containing the following:
+First of all, you need to put some environments variables in a `.env` named file inside the `postgres-db` directory, containing the following:
+
 ```
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=example
