@@ -18,8 +18,8 @@ def get_connection_health(request):
     conn = postgres_test()
     if request.method == 'GET':
         if conn:
-            return HttpResponse("Healthy connection to DB", status=200)
+            return HttpResponse(status=200)
         else:
-            return HttpResponse("Coldn't connect to DB", status=418)
+            return HttpResponse(status=500)
 
 
