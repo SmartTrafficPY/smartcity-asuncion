@@ -17,11 +17,12 @@ docker-compose version 1.20.1, build 0429c243o2
 If not installed yet, follow the official guide in https://docs.docker.com/install/ and docker-compose here: https://docs.docker.com/compose/install/
 
 ## Deployment
-First of all, you need to put some environments variables in a `.env` file inside `postgres-db` directory, containing the following:
+First of all, you need to put some environments variables in a `.env` named file inside the `postgres-db` directory, containing the following:
+
 ```
-POSTGRES_PASSWORD=PASSWORD
-POSTGRES_DB=DATABASE_NAME
-POSTGRES_NAME=USER_OF_DATABASE
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=example
+POSTGRES_DB=smarttraffic
 ``` 
 
 Build the container:
@@ -61,3 +62,9 @@ $ 132.145.199.13
 ##User interest(Optional)
 If you are getting this error, `docker : /bin/sh^M: bad interpreter: No shu file or directory`
 You would like to see this page to solve it: https://forums.docker.com/t/error-while-running-docker-code-in-powershell/34059
+
+Other thing that might be useful is restarting docker, that may solve some troubles of network.
+
+```
+$ docker-machine restart
+```
