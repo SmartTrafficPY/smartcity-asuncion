@@ -39,6 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'usuarios',
+    'perfiles_SmartParking',
+    # 'predios_SmartParking',
+    # 'lugaresEstacionamiento_SmartParking',
     'health',
 ]
 
@@ -53,6 +56,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'smarttraffic_server.urls'
+
+# CSRF_COOKIE_SECURE = True
 
 TEMPLATES = [
     {
@@ -106,6 +111,10 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+DEFAULT_AUTHENTICATION_CLASSES = (
+    'rest_framework.authentication.SessionAuthentication',
+    'rest_framework.authentication.BasicAuthentication'
+),
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/

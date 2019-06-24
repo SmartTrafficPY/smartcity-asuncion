@@ -18,8 +18,8 @@ def get_connection_health(request):
     conn = postgres_test()
     if request.method == 'GET':
         if conn:
-            return HttpResponse(status=200)
+            return HttpResponse("Correcta", status=200)
         else:
-            return HttpResponse(status=500)
+            return HttpResponse("Bad", status=500)
 
 

@@ -2,7 +2,6 @@
 La plataforma del servidor del proyecto SmartTraffic
 
 ## INSTALL
-
 Docker: 18.03 +
 Docker Compose: 1.13.0 +
 Check that you have the correct docker version, with docker compose too,
@@ -59,6 +58,13 @@ $ docker-machine ip
 $ 132.145.199.13
 ```
 
+##PRODUCTION
+Before you run in production, check the output of:
+
+```
+$ python manage.py check --deploy
+```
+
 ##User interest(Optional)
 If you are getting this error, `docker : /bin/sh^M: bad interpreter: No shu file or directory`
 You would like to see this page to solve it: https://forums.docker.com/t/error-while-running-docker-code-in-powershell/34059
@@ -68,3 +74,13 @@ Other thing that might be useful is restarting docker, that may solve some troub
 ```
 $ docker-machine restart
 ```
+
+###Migration of the DB
+If you want to migrate the models that you are adding to the project to the postgres DB,
+you need to migrate it inside of the django-server container. You enter to the bash of it with the following command:
+
+```
+$ docker container exec -it <container_id> /bin/bash 
+```
+
+ 
