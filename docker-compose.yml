@@ -1,36 +1,16 @@
 version: '3'
 
 services:
-  postgres-db:
-    build:
-      context: ./postgres-db/
-      dockerfile: Dockerfile
-    image: smarttraffic/smdb
+  postgres:
+    image: mdillon/postgis:11
     volumes:
       - db-data:/var/lib/postgresql/data
     restart: always
     ports:
       - "5432:5432"
-    env_file: ./postgres-db/.env
+    # env_file: ./postgres-db/.env
     networks:
       - smarttraffic_conn
-  django-server:
-    build:
-      context: ./django-server
-      dockerfile: Dockerfile
-    image: smarttraffic/smserver
-    depends_on:
-      - postgres-db
-    command: python manage.py runserver 0.0.0.0:8000
-    links:
-      - postgres-db
-    volumes:
-      - .:/code
-    ports:
-      - "8000:8000"
-    networks:
-      - smarttraffic_conn
-    restart: always
 
 networks:
   smarttraffic_conn:

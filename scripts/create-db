@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+PG_HOST=${PG_HOST:-localhost}
+PG_PORT=${PG_PORT:-5432}
+python manage.py sqlcreate | psql -h $PG_HOST -p $PG_PORT -U postgres -W
