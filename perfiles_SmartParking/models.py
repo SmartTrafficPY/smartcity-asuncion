@@ -7,7 +7,7 @@ class Perfil_SmartParking(models.Model):
     # lastname = models.CharField(max_length=50)
     # email = models.CharField(max_length=150)
     password = models.CharField(max_length=50)
-    alias = models.CharField(max_length=50)
+    alias = models.CharField(max_length=50, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

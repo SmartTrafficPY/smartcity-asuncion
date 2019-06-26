@@ -27,7 +27,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -38,11 +37,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'usuarios',
+    # 'rest_framework.authtoken',
+    'health',
     'perfiles_SmartParking',
     # 'predios_SmartParking',
     # 'lugaresEstacionamiento_SmartParking',
-    'health',
+
 ]
 
 MIDDLEWARE = [
@@ -76,6 +76,17 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'smarttraffic_server.wsgi.application'
+#
+# # TOKEN AUTHENTICATION...
+# REST_FRAMEWORK = {
+#     'DEFAULT_AUTHENTICATION_CLASSES': (
+#         'rest_framework.authentication.TokenAuthentication'
+#     ),
+#     'DEFAULT_PERMISSION_CLASSES': (
+#         'rest_framework.permissions.IsAuthenticated'
+#     )
+# }
+
 
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
@@ -110,11 +121,6 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
-DEFAULT_AUTHENTICATION_CLASSES = (
-    'rest_framework.authentication.SessionAuthentication',
-    'rest_framework.authentication.BasicAuthentication'
-),
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/

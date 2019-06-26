@@ -1,13 +1,14 @@
-from django.http import HttpResponse
 from django.http import Http404
-from rest_framework.decorators import api_view
-from django.shortcuts import render
-from django.views.decorators.http import require_http_methods
-from django.core import serializers
-from . serializer import perfilSerializers
+from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import status
+from rest_framework import mixins
+from rest_framework import authentication, permissions
 from django.views.decorators.csrf import csrf_exempt
 from . models import Perfil_SmartParking
+from . serializer import perfilSerializers
+from django.core.exceptions import ObjectDoesNotExist, EmptyResultSet
+
 
 import datetime
 
@@ -18,47 +19,74 @@ import datetime
 # REST_FRAMEWORK:
 # https://www.django-rest-framework.org/tutorial/3-class-based-views/#tutorial-3-class-based-views
 
-@api_view(['GET'])
-@require_http_methods(["GET"])
-def get_profile_by_id(request, id):
-    try:
-        obj = Perfil_SmartParking.objects.get(pk=id)
-        data = perfilSerializers(obj)
-    except Perfil_SmartParking.DoesNotExist:
-        raise Http404("No profile matches the given query.")
-    return Response(data.data, content_type='application/json')
+class ProfileList(APIView):
 
-@csrf_exempt
-@api_view(['POST'])
-@require_http_methods(["POST"])
-# Need to do more control... null,etc
-def post_profile_add(request):
-    # if not exist that alias Profile, you can insert it in the DB...
-    # query = Perfil_SmartParking.objects.get(alias=request.POST.get("alias"))
-    # if query is None:
-        # create the new one...
-        query_insert = Perfil_SmartParking(password=request.data.get('password'), alias=request.data.get('alias'),
-                                           created_at=current_datetime(), updated_at=current_datetime())
-        query_insert.save()
-        return HttpResponse("New profile created", status=200)
-    # else:
-        return HttpResponse("User profile already exists", status=500)
+    # Class view for Return List types of responses...
 
-# #Missing DELETE and UPDATE...
-# #by alias...
-# @require_http_methods(["DELETE", "UPDATE"])
-# def profile_change(request):
-#     if request.method == "DELETE":
-#
-#     else:
-#
-#     #if not exist that alias Profile, you can insert it in the DB...
-#     query_get = Perfil_SmartParking.objects.get(alias = request.body.alias)
-#     if query_get is None:
-#
-#         return HttpResponse("New profile created", status=200)
-#     else:
-#         return HttpResponse("User profile already exists", status=500)
+    def get(self, request, format=None):
+        profile_sp = Perfil_SmartParking.objects.all()
+        serializer = perfilSerializers(profile_sp, many=True)
+        return Response(serializer.data)  
+
+class ProfilesCRUD(APIView):
+    """
+    Set Create, Read, Update and Delete services of SmartParking users profile
+    """
+    """
+    View to list all users in the system.
+
+    * Should requires token authentication.
+    * Only some users should able to access this view.
+    """
+    # authentication_classes = (authentication.TokenAuthentication,)
+    # permission_classes = (permissions.IsAdminUser,)
+
+    def get_object_id(self, id):
+        try:
+            return Perfil_SmartParking.objects.get(id=id)
+        except Perfil_SmartParking.DoesNotExist:
+            raise Http404
+
+    def get_object_alias(self, alias):
+        try:
+            return Perfil_SmartParking.objects.get(alias=alias)
+        except Perfil_SmartParking.DoesNotExist:
+            raise Http404
+
+    def get(self, request, id, format=None):
+        perfil_sp = self.get_object_id(id)
+        serializer = perfilSerializers(perfil_sp)
+        return Response(serializer.data)
+
+    def post(self, request, format=None):
+        # if not exist that alias in another profile, you can insert it in the DB...
+        try:
+            perfil_sp = Perfil_SmartParking.objects.get(alias=request.data.get('alias'))
+        except Perfil_SmartParking.DoesNotExist:
+            query_insert = Perfil_SmartParking(password=request.POST.get('password'), alias=request.POST.get('alias'),
+                                            created_at=current_datetime(), updated_at=current_datetime())
+            query_insert.save()
+            return Response(request.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response("This profile already exists", status=status.HTTP_403_FORBIDDEN)
+
+    def put(self, request, format=None):
+        # if exist that alias Profile, update else conflict...
+        # for now let you to update the password...
+        try:
+            perfil_sp = Perfil_SmartParking.objects.get(alias=request.data.get('alias'))
+        except Perfil_SmartParking.DoesNotExist:
+            return Response("This alias profile does not exists", status=status.HTTP_404_NOT_FOUND)
+        else:
+            perfil_sp.password = request.data.get('password')
+            perfil_sp.updated_at = current_datetime()
+            perfil_sp.save()
+            return Response(request.data, status=status.HTTP_202_ACCEPTED)
+
+    def delete(self, request, id, format=None):
+        profile_sp = self.get_object_id(id)
+        profile_sp.delete()
+        return Response(status=status.HTTP_200_OK)
 
 
 def current_datetime():

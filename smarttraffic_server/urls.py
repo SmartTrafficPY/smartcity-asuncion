@@ -15,13 +15,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-# from rest_framework.documentation import include_docs_urls
-
-# from rest_framework.urlpatterns import format_suffic_patterns
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('profiles/', include('perfiles_SmartParking.urls')),
+    path('smartparking/', include('perfiles_SmartParking.urls')),
     path('health/', include('health.urls')),
-    # path('docs/', include_docs_urls(title='My API title'))
+    # path('api-tocken-auth/', views.obtain_auth_token, name='api-token-auth')
 ]

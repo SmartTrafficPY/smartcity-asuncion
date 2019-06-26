@@ -2,5 +2,5 @@
 
 docker-compose down
 docker-compose build
-clear
+# clear
 docker-compose up $1

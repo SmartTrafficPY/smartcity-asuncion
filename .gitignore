@@ -56,6 +56,9 @@ var/
 pip-log.txt
 pip-delete-this-directory.txt
 
+# OSM Maps
+*.pbf
+
 # Unit test / coverage reports
 htmlcov/
 .tox/
