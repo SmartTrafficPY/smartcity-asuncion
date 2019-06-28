@@ -46,6 +46,9 @@ var/
 .installed.cfg
 *.egg
 
+#OSM data 
+*.pbf
+
 # PyInstaller
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
@@ -55,9 +58,6 @@ var/
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
-
-# OSM Maps
-*.pbf
 
 # Unit test / coverage reports
 htmlcov/
@@ -79,11 +79,13 @@ target/
 *.pyc
 __pycache__/
 local_settings.py
+local.py
 
 .env
 db.sqlite3
 
 .idea
+.vscode
 
 /requirements/
 /static
