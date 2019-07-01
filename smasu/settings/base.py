@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "smusers",
     "smhealth",
+    "sp_lots",
 ]
 
 MIDDLEWARE = [
