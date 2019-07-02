@@ -73,7 +73,6 @@ Then, we can install python version 3.7.2 and pip with:
 $ pyenv install 3.7.2
 $pip install -U pip
 $pip install pipenv
-$pipenv install --dev
 ```
 
 Then we need to export some variables for pipenv
