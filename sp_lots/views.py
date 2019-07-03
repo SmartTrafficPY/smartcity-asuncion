@@ -28,8 +28,8 @@ class LotsList(APIView):
 
 class LotsCRUD(APIView):
     """
-    Set Create, Read, Update and Delete services of SmartParking users profile
-    View to list all users in the system.
+    Create, Read, Update and Delete services of SmartParking parking lots
+    View to list all lots in the system.
     * Should requires token authentication.
     * Only some users should able to access this view.
     """
@@ -49,34 +49,36 @@ class LotsCRUD(APIView):
         return Response(serializer.data)
 
     def post(self, request, format=None):
-        # if not exist that alias in another profile, you can insert it in the DB...
+        # if not exist that id, you can insert it in the DB...
         try:
             ParkingLot.objects.get(id=request.data.get("id"))
         except ParkingLot.DoesNotExist:
             query_insert = ParkingLot(
-                radio=request.POST.get("password"),
+                radio=request.POST.get("radio"),
                 lat_center=request.POST.get("lat_center"),
                 lng_center=request.POST.get("lng_center"),
-                spots_in=request.POST.get("spots_in"),
-                created_at=current_datetime(),
-                updated_at=current_datetime(),
+                # First time should be 0 ?
+                spots_in=0,
+                created_at=datetime.datetime.now(),
+                updated_at=datetime.datetime.now(),
             )
             query_insert.save()
             return Response(request.data, status=status.HTTP_201_CREATED)
         else:
-            return Response("This profile already exists", status=status.HTTP_403_FORBIDDEN)
+            return Response("This lot already exists", status=status.HTTP_403_FORBIDDEN)
 
     def put(self, request, format=None):
-        # if exist that alias Profile, update else conflict...
-        # for now let you to update the password...
+        # if exist that parking spot id, update else conflict...
         try:
             lots = ParkingLot.objects.get(id=request.data.get("id"))
         except ParkingLot.DoesNotExist:
-            return Response("This alias profile does not exists", status=status.HTTP_404_NOT_FOUND)
+            return Response("This parking lot does not exists", status=status.HTTP_404_NOT_FOUND)
         else:
             # Should be worth it change the center and radious of lot?
-            lots.spots_in = lots.spots_in + 1
-            lots.updated_at = current_datetime()
+            lots.radio = request.data.get("radio")
+            lots.lat_center = request.data.get("lat_center")
+            lots.lng_center = request.data.get("lng_center")
+            lots.updated_at = datetime.datetime.now()
             lots.save()
             return Response(request.data, status=status.HTTP_202_ACCEPTED)
 
@@ -97,8 +99,8 @@ class SpotsList(APIView):
 
 class SpotsCRUD(APIView):
     """
-    Set Create, Read, Update and Delete services of SmartParking users profile
-    View to list all users in the system.
+    Create, Read, Update and Delete services of SmartParking parking spots
+    View to list all spots in the system.
     * Should requires token authentication.
     * Only some users should able to access this view.
     """
@@ -118,23 +120,51 @@ class SpotsCRUD(APIView):
         return Response(serializer.data)
 
     def post(self, request, format=None):
-        # a resumed way to put it...
-        serializer = SpotSerializers(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer._errors, status=status.HTTP_403_FORBIDDEN)
+        # if not exist that id , you can insert it in the DB...
+        try:
+            ParkingSpot.objects.get(id=request.data.get("id"))
+        except ParkingSpot.DoesNotExist:
+            try:
+                lot_fk = ParkingLot.objects.get(id=request.POST.get("in_lot"))
+            except ParkingLot.DoesNotExist:
+                return Response("This lot id do not exists", status=status.HTTP_404_NOT_FOUND)
+            else:
+                query_insert = ParkingSpot(
+                    in_lot=lot_fk,
+                    point1_lat=request.POST.get("point1_lat"),
+                    point1_lng=request.POST.get("point1_lng"),
+                    point2_lat=request.POST.get("point2_lat"),
+                    point2_lng=request.POST.get("point2_lng"),
+                    point3_lat=request.POST.get("point3_lat"),
+                    point3_lng=request.POST.get("point3_lng"),
+                    point4_lat=request.POST.get("point4_lat"),
+                    point4_lng=request.POST.get("point4_lng"),
+                    point5_lat=request.POST.get("point5_lat"),
+                    point5_lng=request.POST.get("point5_lng"),
+                    spot_status='U',
+                    status_updated_at=datetime.datetime.now(),
+                    created_at=datetime.datetime.now(),
+                )
+                query_insert.save()
+                lot_fk.spots_in += 1
+                # should add +1 to spots_in in this objet instance...
+                lot_fk.save()
+                return Response(request.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response("This parking spot already exists", status=status.HTTP_403_FORBIDDEN)
 
     def put(self, request, format=None):
         # if exist that id ParkingSpot, update status, user who changed it...
+        # We could change the lot_id to?
         try:
             spot = ParkingSpot.objects.get(id=request.data.get("id"))
         except ParkingSpot.DoesNotExist:
-            return Response("This alias profile does not exists", status=status.HTTP_404_NOT_FOUND)
+            return Response("This parking spot does not exists", status=status.HTTP_404_NOT_FOUND)
         else:
-            spot.spot_status = request.data.get("status")
+            # spot.in_lot = request.data.get("in_lot")
+            spot.spot_status = request.data.get("spot_status")
             # spot.user_changed_status = request.data.get("user_changed_status")
-            spot.status_updated_at = current_datetime()
+            spot.status_updated_at = datetime.datetime.now()
             spot.save()
             return Response(request.data, status=status.HTTP_202_ACCEPTED)
 
@@ -142,8 +172,3 @@ class SpotsCRUD(APIView):
         spot = self.get_object_id(id)
         spot.delete()
         return Response(status=status.HTTP_200_OK)
-
-
-def current_datetime():
-    now = datetime.datetime.now()
-    return now

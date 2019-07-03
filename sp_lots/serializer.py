@@ -15,9 +15,3 @@ class SpotSerializers(serializers.ModelSerializer):
     class Meta:
         model = ParkingSpot
         fields = "__all__"
-
-    # Foreign Key...
-
-    def to_representation(self, instance):
-        self.fields["in_lot"] = LotsSerializers(read_only=True)
-        return super(LotsSerializers, self).to_representation(instance)

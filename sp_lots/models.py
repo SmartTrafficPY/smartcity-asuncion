@@ -9,12 +9,12 @@ class ParkingLot(models.Model):
     created_at = models.DateTimeField(auto_now=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def __str__(self):
-        return self.username
+    # def __str__(self):
+    #     return self.username
 
 
 class ParkingSpot(models.Model):
-    PARKING_SPOT_STATUS_CHOICES = (("F", "Free"), ("O", "Occupied"), ("U", "Unknown"))
+    PARKING_SPOT_STATUS_CHOICES = (("Free", "F"), ("Occupied", "O"), ("Unknown", "U"))
     in_lot = models.ForeignKey(ParkingLot, on_delete=models.CASCADE)
     point1_lat = models.FloatField()
     point1_lng = models.FloatField()
@@ -31,5 +31,5 @@ class ParkingSpot(models.Model):
     status_updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now=True)
 
-    def __str__(self):
-        return self.in_lot
+    # def __str__(self):
+    #     return self.in_lot
