@@ -141,7 +141,7 @@ class SpotsCRUD(APIView):
                     point4_lng=request.POST.get("point4_lng"),
                     point5_lat=request.POST.get("point5_lat"),
                     point5_lng=request.POST.get("point5_lng"),
-                    spot_status='U',
+                    spot_status="U",
                     status_updated_at=datetime.datetime.now(),
                     created_at=datetime.datetime.now(),
                 )
