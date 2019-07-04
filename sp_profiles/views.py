@@ -26,6 +26,23 @@ class ProfileList(APIView):
         return Response(serializer.data)
 
 
+class ProfileLogin(APIView):
+    """
+    Here we should recieve the user credentials, for making the login
+    IF match, return the id, if NOT message
+    """
+
+    def post(self, request, format=None):
+        try:
+            profile_sp = Sp_profiles.objects.get(
+                alias=request.data.get("alias"), password=request.data.get("password")
+            )
+        except Sp_profiles.DoesNotExist:
+            return Response("This profile does not exists", status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response(profile_sp.id)
+
+
 class ProfilesCRUD(APIView):
     """
     Set Create, Read, Update and Delete services of SmartParking users profile
@@ -63,6 +80,7 @@ class ProfilesCRUD(APIView):
             query_insert = Sp_profiles(
                 password=request.POST.get("password"),
                 alias=request.POST.get("alias"),
+                age=request.POST.get("age"),
                 created_at=current_datetime(),
                 updated_at=current_datetime(),
             )
