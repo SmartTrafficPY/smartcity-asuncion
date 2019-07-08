@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  postgres:
+    image: mdillon/postgis:11
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    restart: always
+    ports:
+      - "5432:5432"
+    # env_file: ./postgres-db/.env
+    networks:
+      - smarttraffic_conn
+
+networks:
+  smarttraffic_conn:
+    driver: bridge
+
+volumes:
+  db-data:
+    driver: local
