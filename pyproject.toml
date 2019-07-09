@@ -1,13 +1,2 @@
 [tool.black]
 line-length = 119
-exclude = '''
-
-(
-  /(
-      \.git
-    | \.tox
-    | \.venv
-    | \w+/migrations
-  )/
-)
-'''
