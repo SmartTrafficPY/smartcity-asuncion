@@ -45,10 +45,10 @@ If you have not python, follow the next [guide](https://tecadmin.net/install-pyt
 
 ### Postgresql
 
-Make sure you have postgres with:
+Make sure you have postgres 10 with:
 
 ```
-$ sudo apt-get install -y postgresql-client
+$ sudo apt-get install -y postgresql-client-10
 $ psql --version  
 ```
 
