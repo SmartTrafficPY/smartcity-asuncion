@@ -40,7 +40,7 @@ class ProfileLogin(APIView):
         except Sp_profiles.DoesNotExist:
             return Response("This profile does not exists", status=status.HTTP_404_NOT_FOUND)
         else:
-            return Response(profile_sp.id)
+            return Response(ProfileSerializers(profile_sp).data)
 
 
 class ProfilesCRUD(APIView):
@@ -78,14 +78,15 @@ class ProfilesCRUD(APIView):
             Sp_profiles.objects.get(alias=request.data.get("alias"))
         except Sp_profiles.DoesNotExist:
             query_insert = Sp_profiles(
-                password=request.POST.get("password"),
-                alias=request.POST.get("alias"),
-                age=request.POST.get("age"),
+                password=request.data.get("password"),
+                alias=request.data.get("alias"),
+                age=request.data.get("age"),
+                sex=request.data.get("sex"),
                 created_at=current_datetime(),
                 updated_at=current_datetime(),
             )
             query_insert.save()
-            return Response(request.data, status=status.HTTP_201_CREATED)
+            return Response(ProfileSerializers(query_insert).data, status=status.HTTP_201_CREATED)
         else:
             return Response("This profile already exists", status=status.HTTP_403_FORBIDDEN)
 
