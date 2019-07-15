@@ -39,9 +39,9 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django_extensions",
     "rest_framework",
-    "smusers",
+    "rest_framework.authtoken",
     "smhealth",
-    "sp_profiles",
+    "spusers",
 ]
 
 MIDDLEWARE = [

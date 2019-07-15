@@ -18,9 +18,10 @@ from django.urls import include, path
 
 # from rest_framework.urlpatterns import format_suffic_patterns
 
+api_patterns = [path("smartparking/", include("spusers.urls"))]
+
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/", include("smusers.urls")),
     path("health/", include("smhealth.urls")),
-    path("smartparking/", include("sp_profiles.urls")),
+    path("api/", include(api_patterns)),
 ]

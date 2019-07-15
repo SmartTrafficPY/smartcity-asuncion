@@ -8,6 +8,7 @@ pre-commit = "*"
 flake8 = "*"
 black = "*"
 isort = "*"
+pdbpp = "*"
 
 [packages]
 django = "*"

@@ -45,10 +45,10 @@ If you have not python, follow the next [guide](https://tecadmin.net/install-pyt
 
 ### Postgresql
 
-Make sure you have postgres with:
+Make sure you have postgres 10 with:
 
 ```
-$ sudo apt-get install -y postgresql-client
+$ sudo apt-get install -y postgresql-client-10
 $ psql --version  
 ```
 
@@ -65,7 +65,7 @@ the server to execute.
 First install some packages pyenv will need to build, compile the commands we need to run after, so:
 
 ```
-sudo apt-get update; sudo apt-get install --no-install-recommends make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev libpq-dev
+sudo apt-get update; sudo apt-get install --no-install-recommends make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
 ```
 Then, we can install python version 3.7.2 and pip with:
 
@@ -73,6 +73,7 @@ Then, we can install python version 3.7.2 and pip with:
 $ pyenv install 3.7.2
 $pip install -U pip
 $pip install pipenv
+$pipenv install --dev
 ```
 
 Then we need to export some variables for pipenv
@@ -142,13 +143,3 @@ Other thing that might be useful is restarting docker, that may solve some troub
 ```
 $ docker-machine restart
 ```
-
-###Migration of the DB
-If you want to migrate the models that you are adding to the project to the postgres DB,
-you need to migrate it inside of the django-server container. You enter to the bash of it with the following command:
-
-```
-$ docker container exec -it <container_id> /bin/bash 
-```
-
- 
