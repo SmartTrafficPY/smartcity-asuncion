@@ -67,8 +67,14 @@ First install some packages pyenv will need to build, compile the commands we ne
 ```
 sudo apt-get update; sudo apt-get install --no-install-recommends make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
 ```
-Then, we can install python version 3.7.2 and pip with:
-
+Clone the repository:
+```
+git clone https://github.com/SmartTrafficPY/smartcity-asuncion.git
+```
+Go to directory of the repository and then, we can install python version 3.7.2 and pip with:
+```
+cd .../smartcity-asuncion
+```
 ```
 $ pyenv install 3.7.2
 $pip install -U pip
