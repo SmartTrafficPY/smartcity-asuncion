@@ -23,6 +23,10 @@ class SpotSerializers(serializers.ModelSerializer):
         return instance
 
     def update(self, instance, validated_data):
+
+        instance.status = validated_data.get("status", instance.status)
+        instance.in_lot = validated_data.get("in_lot", instance.in_lot)
+
         with transaction.atomic():
             instance.save()
 
@@ -44,6 +48,11 @@ class LotsSerializers(serializers.ModelSerializer):
         return instance
 
     def update(self, instance, validated_data):
+
+        instance.radio = validated_data.get("radio", instance.radio)
+        instance.latitud_center = validated_data.get("latitud_center", instance.latitud_center)
+        instance.longitud_center = validated_data.get("longitud_center", instance.longitud_center)
+
         with transaction.atomic():
             instance.save()
 

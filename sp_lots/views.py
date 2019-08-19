@@ -1,5 +1,6 @@
 from rest_framework import viewsets
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
+from rest_framework.response import Response
 
 # from rest_framework import authentication, permissions
 from .models import ParkingLot, ParkingSpot
@@ -22,9 +23,19 @@ class SpotsView(viewsets.ModelViewSet):
     authentication_classes = (SessionAuthentication, TokenAuthentication)
     # permission_classes = (IsAuthenticated,)
 
+    def get(self, request, pk, format=None):
+        spots = ParkingSpot.objects.all().filter(in_lot=pk)
+        serializer = LotsSerializers(spots, many=True)
+        return Response(serializer.data)
+
 
 class LotsView(viewsets.ModelViewSet):
     queryset = ParkingLot.objects.all()
     serializer_class = LotsSerializers
     authentication_classes = (SessionAuthentication, TokenAuthentication)
     # permission_classes = (IsAuthenticated,)
+
+    def get(self, request, format=None):
+        lots = ParkingLot.objects.all()
+        serializer = LotsSerializers(lots, many=True)
+        return Response(serializer.data)
