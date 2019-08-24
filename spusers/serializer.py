@@ -7,11 +7,9 @@ from .models import SmartParkingProfile
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    alias = serializers.CharField(max_length=50, validators=[])
-
     class Meta:
         model = SmartParkingProfile
-        fields = ("birth_date", "alias")
+        fields = ("birth_date", "sex")
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -59,7 +57,7 @@ class UserSerializer(serializers.ModelSerializer):
                 profile = instance.smartparkingprofile
                 if profile:
                     profile.birth_date = profile_data.get("birth_date", profile.birth_date)
-                    profile.alias = profile_data.get("alias", profile.alias)
+                    profile.sex = profile_data.get("sex", profile.sex)
                     profile.save()
                 else:
                     SmartParkingProfile.objects.create(user=instance, **profile_data)
