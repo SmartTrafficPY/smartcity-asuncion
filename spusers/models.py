@@ -4,14 +4,13 @@ from django.db import models
 
 class SmartParkingProfile(models.Model):
 
-    GENDER_MALE = "M"
-    GENDER_FEMALE = "F"
-    GENDER_OTHER = "O"
-    GENDER_CHOICES = ((GENDER_MALE, "Male"), (GENDER_FEMALE, "Female"), (GENDER_OTHER, "Other"))
+    SEX_MALE = "M"
+    SEX_FEMALE = "F"
+    SEX_CHOICES = ((SEX_MALE, "Male"), (SEX_FEMALE, "Female"))
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     birth_date = models.DateField(null=True, blank=True)
-    gender = models.CharField(max_length=16, choices=GENDER_CHOICES)
+    sex = models.CharField(max_length=16, choices=SEX_CHOICES)
     alias = models.CharField(max_length=50, unique=True)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
