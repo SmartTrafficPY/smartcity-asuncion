@@ -1,6 +1,6 @@
 from django.urls import include, path
 from rest_framework import routers
-from sp_lots.views import LotsView, SpotsView
+from sp_lots.views import LotsExtra
 
 from . import views
 
@@ -10,8 +10,4 @@ router = routers.DefaultRouter()
 router.register("lots", views.LotsView)
 router.register("spots", views.SpotsView)
 
-urlpatterns = [
-    path("spots_of/<int:pk>/", SpotsView.as_view({"get": "list"})),
-    path("lots/all/", LotsView.as_view({"get": "list"})),
-    path("", include(router.urls)),
-]
+urlpatterns = [path("", include(router.urls)), path("spots_of/<str:name>/", LotsExtra.as_view())]

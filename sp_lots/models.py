@@ -3,6 +3,7 @@ from django.db import models
 
 class ParkingLot(models.Model):
     radio = models.FloatField(blank=False)
+    name = models.CharField(max_length=50)
     latitud_center = models.FloatField(blank=False)
     longitud_center = models.FloatField(blank=False)
     spots_in = models.PositiveIntegerField(default=0)
