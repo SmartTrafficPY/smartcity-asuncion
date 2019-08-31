@@ -5,6 +5,5 @@ from . import views
 
 router = routers.DefaultRouter()
 router.register("users", views.UserView)
-# router.register("profiles", views.ProfileView)
 
-urlpatterns = [path("", include(router.urls))]
+urlpatterns = [path("", include(router.urls)), path("auth-token/", views.obtain_auth_token)]
