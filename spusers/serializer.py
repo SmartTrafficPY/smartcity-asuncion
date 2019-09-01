@@ -12,7 +12,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = ("birth_date", "sex")
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.HyperlinkedModelSerializer):
     smartparkingprofile = ProfileSerializer(required=False)
     password = serializers.CharField(
         write_only=True,
@@ -23,8 +23,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        # fields = "__all__"
-        fields = ("id", "password", "username", "first_name", "last_name", "email", "smartparkingprofile")
+        fields = ("url", "password", "username", "smartparkingprofile")
 
     def create(self, validated_data):
         profile_data = validated_data.pop("smartparkingprofile", None)

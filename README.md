@@ -134,8 +134,76 @@ or in the docker VM if you are running in docker toolbox, that you may known wit
 $ docker-machine ip
 $ 132.145.199.13
 ```
-## User interest(Optional)
-If you are getting this error, `docker : /bin/sh^M: bad interpreter: No shu file or directory`
+
+## SmartParking: understanding server requests
+This rant assumes the service is available at 127.0.0.1, port 8000.
+
+### User Management
+The platform works with:
+- session-based authentication
+- token-based authentication (the DRF simple ones)
+
+All requests must be authenticated. Superusers and staff can perform all requests.
+
+Your app needs to use credentials that represent the app itself (as opposed to a normal user account) to perform:
+
+#### List users:
+GET /smartparking/users/
+```
+$ curl -H "Authorization: Token aTokenForTheSmartParkingApp" -iX GET http://127.0.0.1:8000/smartparking/users/
+```
+(you'll get a long JSON array)
+
+
+#### Create a user:
+POST /smartparking/users/
+```
+$ curl -d '{"username": "normal_user", "password": "superSecretPassword", "smartparkingprofile": {"birth_date": "2009-01-01", "sex": "M"}}' -H "Content-Type: application/json" -H "Authorization: Token aTokenForTheSmartParkingApp" -iX POST http://127.0.0.1:8000/smartparking/users/
+
+HTTP/1.1 201 Created
+Date: Sun, 01 Sep 2019 17:13:01 GMT
+Server: WSGIServer/0.2 CPython/3.7.2
+Content-Type: application/json
+Location: http://127.0.0.1:8000/smartparking/users/1234/
+Vary: Accept, Cookie
+Allow: GET, POST, HEAD, OPTIONS
+X-Frame-Options: SAMEORIGIN
+Content-Length: 181
+
+{"url":"http://127.0.0.1:8000/smartparking/users/1234/","username":"normal_user","smartparkingprofile":{"birth_date":"2009-01-01","sex":"M"}}
+```
+
+Get the URL in the `Location:` header to manipulate the user instance you just created.
+
+#### Retrieve a user's token:
+```
+curl -d '{"username": "normal_user", "password": "superSecretPassword"}' -H "Content-Type: application/json" -H "Authorization: Token aTokenForTheSmartParkingApp" -X POST http://127.0.0.1:8000/smartparking/auth-token/
+
+{"token":"normalUserToken", "url":"http://127.0.0.1:8000/smartparking/users/1234/"}
+```
+
+
+If you want to modify user details, you need to authenticate as that user (or as a superuser or staff).
+
+#### Change user information:
+PATCH /smartparking/users/_someUserId_
+```
+$ curl -d '{"password": "aBetterSuperSecretPassword"}' -H "Content-Type: application/json" -H "Authorization: Token normalUserToken" -iX PATCH http://127.0.0.1:8000/smartparking/users/1234/
+
+HTTP/1.1 200 OK
+Date: Sun, 01 Sep 2019 18:10:03 GMT
+Server: WSGIServer/0.2 CPython/3.7.2
+Content-Type: application/json
+Vary: Accept, Cookie
+Allow: GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+X-Frame-Options: SAMEORIGIN
+Content-Length: 139
+
+{"url":"http://127.0.0.1:8000/smartparking/users/1234/","username":"normal_user","smartparkingprofile":{"birth_date":"2009-01-01","sex":"M"}}
+```
+
+## Some notes regarding docker on windows 
+If you are getting this error, `docker : /bin/sh^M: bad interpreter: No such file or directory`
 You would like to see this page to solve it: https://forums.docker.com/t/error-while-running-docker-code-in-powershell/34059
 
 Other thing that might be useful is restarting docker, that may solve some troubles of network.
