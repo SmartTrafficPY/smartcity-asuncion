@@ -11,7 +11,7 @@ isort = "*"
 pdbpp = "*"
 
 [packages]
-django = "==2.2.*"
+django = "<2.3,>=2.2.4"
 djangorestframework = "*"
 psycopg2 = "*"
 django-extensions = "*"
