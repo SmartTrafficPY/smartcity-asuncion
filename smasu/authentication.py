@@ -11,4 +11,4 @@ class TokenAuthenticationInQuery(TokenAuthentication):
         if "token" in request.query_params and "HTTP_AUTHORIZATION" not in request.META:
             return self.authenticate_credentials(request.query_params.get("token"))
         else:
-            return super(TokenAuthenticationInQuery, self).authenticate(request)
+            return super().authenticate(request)
