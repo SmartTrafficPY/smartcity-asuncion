@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
+    "django.contrib.gis",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
@@ -42,6 +43,7 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "smhealth",
     "spusers",
+    "splots",
 ]
 
 MIDDLEWARE = [
@@ -80,7 +82,7 @@ WSGI_APPLICATION = "smasu.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
+        "ENGINE": "django.contrib.gis.db.backends.postgis",
         "NAME": "smarttraffic",
         "USER": "smarttraffic",
         "PASSWORD": "smarttraffic",
