@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "django_extensions",
     "rest_framework",
     "rest_framework.authtoken",
+    "smasu",
     "smhealth",
     "spusers",
     "splots",
