@@ -12,8 +12,8 @@ isort = "*"
 [packages]
 django = "*"
 djangorestframework = "*"
-psycopg2 = "*"
 django-extensions = "*"
+psycopg2-binary = "*"
 
 [requires]
 python_version = "3.7"

@@ -90,3 +90,8 @@ db.sqlite3
 /requirements/
 /static
 /.venv
+Pipfile
+
+Pipfile.lock
+/0001_initial.py
+smoving/migrations/0001_initial.py
