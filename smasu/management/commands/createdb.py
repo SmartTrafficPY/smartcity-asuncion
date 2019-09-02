@@ -63,7 +63,7 @@ class Command(BaseCommand):
     #     parser.add_argument('--destroy', default=None)
 
     def handle(self, *args, **options):
-        engine = settings.DATABASES["default"]["engine"]
+        engine = settings.DATABASES["default"]["ENGINE"]
         database = settings.DATABASES["default"]["NAME"]
 
         if engine != "django.contrib.gis.db.backends.postgis":
