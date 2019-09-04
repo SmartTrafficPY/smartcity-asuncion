@@ -18,8 +18,10 @@ from django.urls import include, path
 
 # from rest_framework.urlpatterns import format_suffic_patterns
 
+extra_patterns = [path("", include("spusers.urls")), path("", include("sptimerecord.urls"))]
+
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("smartparking/", include("spusers.urls")),
+    path("smartparking/", include(extra_patterns)),
     path("health/", include("smhealth.urls")),
 ]
