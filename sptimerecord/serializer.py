@@ -7,7 +7,7 @@ from .models import TimeRecord
 class TimeRecordSerializer(serializers.ModelSerializer):
     class Meta:
         model = TimeRecord
-        fields = ("user", "spot", "time_taked", "created")
+        fields = ("user", "spot", "time_taked", "created", "from_app", "action")
 
     def create(self, validated_data):
         with transaction.atomic():
