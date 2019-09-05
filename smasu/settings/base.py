@@ -34,13 +34,17 @@ INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
+    "django.contrib.gis",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_extensions",
     "rest_framework",
-    "smusers",
+    "rest_framework.authtoken",
+    "smasu",
     "smhealth",
+    "spusers",
+    "splots",
 ]
 
 MIDDLEWARE = [
@@ -79,7 +83,7 @@ WSGI_APPLICATION = "smasu.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
+        "ENGINE": "django.contrib.gis.db.backends.postgis",
         "NAME": "smarttraffic",
         "USER": "smarttraffic",
         "PASSWORD": "smarttraffic",
@@ -118,3 +122,5 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = "/static/"
+
+NEARBY_SPOTS_DEFAULT_DISTANCE = 2000  # default "nearby" distance, in meters
