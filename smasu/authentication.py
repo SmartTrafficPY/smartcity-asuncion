@@ -7,6 +7,11 @@ class IsListView(BasePermission):
         return view.action == "list"
 
 
+class IsRetrieveView(BasePermission):
+    def has_permission(self, request, view):
+        return view.action == "retrieve"
+
+
 class IsCreateView(BasePermission):
     def has_permission(self, request, view):
         return view.action == "create"

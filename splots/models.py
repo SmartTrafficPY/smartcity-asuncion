@@ -23,7 +23,7 @@ class ParkingSpot(models.Model):
     STATE_UNKNOWN = "U"
     STATE_CHOICES = ((STATE_FREE, "Free"), (STATE_OCCUPIED, "Occupied"), (STATE_UNKNOWN, "Unknown"))
 
-    parking_lot = models.ForeignKey(ParkingLot, on_delete=models.CASCADE)
+    parking_lot = models.ForeignKey(ParkingLot, related_name="spots", on_delete=models.CASCADE)
     state = models.CharField(max_length=15, choices=STATE_CHOICES, default=STATE_UNKNOWN)
 
     polygon = PolygonField()
