@@ -10,7 +10,7 @@ from rest_framework.reverse import reverse
 from smasu.authentication import IsCreateView, IsListView, IsSameUser, IsSuperUserOrStaff, TokenAuthenticationInQuery
 
 from .models import SmartParkingProfile
-from .serializer import UserSerializer
+from .serializers import UserSerializer
 
 
 def get_application_group():

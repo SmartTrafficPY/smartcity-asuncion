@@ -18,7 +18,11 @@ from django.urls import include, path
 
 # from rest_framework.urlpatterns import format_suffic_patterns
 
-extra_patterns = [path("", include("spusers.urls")), path("", include("spevents.urls"))]
+extra_patterns = [
+    path("", include("spusers.urls")),
+    path("", include("spevents.urls")),
+    path("", include("splots.urls")),
+]
 
 urlpatterns = [
     path("admin/", admin.site.urls),

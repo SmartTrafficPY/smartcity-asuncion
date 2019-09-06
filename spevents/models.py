@@ -7,7 +7,7 @@ class Events(models.Model):
     OCUPAR = "O"
     LIBERAR = "L"
     ENTRADA = "E"
-    SALIDA = "L"
+    SALIDA = "S"
     ACTION_CHOICES = ((OCUPAR, "Ocupar"), (LIBERAR, "Liberar"), (ENTRADA, "Entrada"), (SALIDA, "Salida"))
 
     user = models.ForeignKey(SmartParkingProfile, on_delete=models.CASCADE)
