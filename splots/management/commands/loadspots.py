@@ -25,9 +25,6 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        import pdb
-
-        pdb.set_trace()
         in_file = options["in_file"]
         lot_pk = options["lot_pk"]
 
