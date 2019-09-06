@@ -39,4 +39,4 @@ class ParkingSpot(models.Model):
         return self.state
 
     def __str__(self):
-        return f"{self.parking_lot.name} - {self.pk}"
+        return f"{self.lot.name} - {self.pk}"
