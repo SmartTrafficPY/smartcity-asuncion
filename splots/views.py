@@ -5,7 +5,7 @@ from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import D
 from django.db.models import Q
 from django.utils.timezone import make_aware, now
-from rest_framework import serializers, viewsets
+from rest_framework import renderers, serializers, viewsets
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import action
 from rest_framework.permissions import BasePermission, IsAuthenticated
@@ -13,6 +13,7 @@ from rest_framework.response import Response
 from smasu.authentication import IsRetrieveView, IsSuperUserOrStaff, TokenAuthenticationInQuery
 
 from .models import ParkingLot, ParkingSpot
+from .renderers import SpotGeoJSONRenderer
 from .serializers import NearbySpotsRequest, ParkingLotSerializer, ParkingSpotSerializer
 
 
@@ -43,6 +44,7 @@ class ParkingSpotView(viewsets.ModelViewSet):
     queryset = ParkingSpot.objects.all()
     authentication_classes = (SessionAuthentication, TokenAuthenticationInQuery)
     permission_classes = (IsSuperUserOrStaff | (IsRetrieveView & IsSmartParkingUser),)
+    renderer_classes = [SpotGeoJSONRenderer, renderers.BrowsableAPIRenderer]
 
     def get_serializer_class(self):
         if self.action in {"set", "reset"}:
