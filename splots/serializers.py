@@ -9,8 +9,9 @@ class PointSerializer(serializers.Serializer):
 
 
 class NearbySpotsRequest(serializers.Serializer):
-    point = PointSerializer(required=True)
-    distance = serializers.FloatField()
+    point = PointSerializer()
+    distance = serializers.FloatField(required=False)
+    previous_timestamp = serializers.FloatField(required=False)
 
 
 class ParkingSpotSerializer(serializers.HyperlinkedModelSerializer):

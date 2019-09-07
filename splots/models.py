@@ -33,10 +33,10 @@ class ParkingSpot(models.Model):
 
     def get_state(self):
         elapsed = timezone.now() - self.modified
-        if elapsed > settings.STATE_EXPIRATION_TIME:
+        if elapsed > settings.SPOT_STATE_EXPIRATION_TIME:
             return ParkingSpot.STATE_UNKNOWN
 
         return self.state
 
     def __str__(self):
-        return f"{self.parking_lot.name} - {self.pk}"
+        return f"{self.lot.name} - {self.pk}"

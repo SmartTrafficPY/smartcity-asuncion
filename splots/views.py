@@ -1,7 +1,11 @@
+from datetime import datetime
+
 from django.conf import settings
 from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import D
-from rest_framework import serializers, viewsets
+from django.db.models import Q
+from django.utils.timezone import make_aware, now
+from rest_framework import renderers, serializers, viewsets
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import action
 from rest_framework.permissions import BasePermission, IsAuthenticated
@@ -9,6 +13,7 @@ from rest_framework.response import Response
 from smasu.authentication import IsRetrieveView, IsSuperUserOrStaff, TokenAuthenticationInQuery
 
 from .models import ParkingLot, ParkingSpot
+from .renderers import SpotGeoJSONRenderer
 from .serializers import NearbySpotsRequest, ParkingLotSerializer, ParkingSpotSerializer
 
 
@@ -31,7 +36,7 @@ class ParkingLotView(viewsets.ModelViewSet):
 
     @action(methods=["get"], detail=True, permission_classes=(IsAuthenticated,))
     def spots(self, request, pk=None):
-        lots = ParkingSpot.objects.filter(parking_lot=pk).all()
+        lots = ParkingSpot.objects.filter(lot=pk).all()
         return Response({x.pk: x.state for x in lots})
 
 
@@ -39,6 +44,7 @@ class ParkingSpotView(viewsets.ModelViewSet):
     queryset = ParkingSpot.objects.all()
     authentication_classes = (SessionAuthentication, TokenAuthenticationInQuery)
     permission_classes = (IsSuperUserOrStaff | (IsRetrieveView & IsSmartParkingUser),)
+    renderer_classes = [SpotGeoJSONRenderer, renderers.BrowsableAPIRenderer]
 
     def get_serializer_class(self):
         if self.action in {"set", "reset"}:
@@ -69,15 +75,19 @@ class ParkingSpotView(viewsets.ModelViewSet):
 
     @action(methods=["post"], detail=False, permission_classes=(IsSuperUserOrStaff | IsSmartParkingUser,))
     def nearby(self, request, format=None):
-        serializer = self.serializer_class(data=request.data)
+        serializer = self.get_serializer_class()(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=400)
 
         point_data = serializer.validated_data["point"]
         distance = serializer.validated_data.get("distance", settings.NEARBY_SPOTS_DEFAULT_DISTANCE)
 
-        nearby_spots = ParkingSpot.objects.filter(
-            polygon__distance_lte=(Point(x=point_data["lon"], y=point_data["lat"]), D(m=distance))
-        )
+        query = [Q(polygon__distance_lte=(Point(x=point_data["lon"], y=point_data["lat"]), D(m=distance)))]
 
-        return Response({x.pk: x.state for x in nearby_spots})
+        previous_timestamp = serializer.validated_data.get("previous_timestamp")
+        if previous_timestamp:
+            query = [Q(modified__gt=make_aware(datetime.fromtimestamp(previous_timestamp)))] + query
+
+        nearby_spots = ParkingSpot.objects.filter(*query)
+
+        return Response({x.pk: x.get_state() for x in nearby_spots}, headers={"X-Timestamp": now().timestamp()})
