@@ -10,7 +10,7 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import action
 from rest_framework.permissions import BasePermission, IsAuthenticated
 from rest_framework.response import Response
-from smasu.authentication import IsRetrieveView, IsSuperUserOrStaff, TokenAuthenticationInQuery
+from smasu.authentication import IsListView, IsRetrieveView, IsSuperUserOrStaff, TokenAuthenticationInQuery
 
 from .models import ParkingLot, ParkingSpot
 from .renderers import SpotGeoJSONRenderer
@@ -37,13 +37,14 @@ class ParkingLotView(viewsets.ModelViewSet):
     @action(methods=["get"], detail=True, permission_classes=(IsAuthenticated,))
     def spots(self, request, pk=None):
         lots = ParkingSpot.objects.filter(lot=pk).all()
+        # return Response(lots)
         return Response({x.pk: x.state for x in lots})
 
 
 class ParkingSpotView(viewsets.ModelViewSet):
     queryset = ParkingSpot.objects.all()
     authentication_classes = (SessionAuthentication, TokenAuthenticationInQuery)
-    permission_classes = (IsSuperUserOrStaff | (IsRetrieveView & IsSmartParkingUser),)
+    permission_classes = (IsSuperUserOrStaff | ((IsRetrieveView | IsListView) & IsSmartParkingUser),)
     renderer_classes = [SpotGeoJSONRenderer, renderers.BrowsableAPIRenderer]
 
     def get_serializer_class(self):
@@ -61,7 +62,7 @@ class ParkingSpotView(viewsets.ModelViewSet):
             spot = ParkingSpot.objects.get(pk=pk)
         except ParkingSpot.DoesNotExist:
             return Response(status=404)
-
+        # add a event register
         spot.state = ParkingSpot.STATE_OCCUPIED
         spot.save()
         return Response(status=200)
@@ -69,6 +70,7 @@ class ParkingSpotView(viewsets.ModelViewSet):
     @action(methods=["post"], detail=True, permission_classes=(IsSuperUserOrStaff | IsSmartParkingUser,))
     def reset(self, request, pk, format=None):
         spot = ParkingSpot.objects.get(pk=pk)
+        # add a event register
         spot.state = ParkingSpot.STATE_FREE
         spot.save()
         return Response(status=200)
@@ -89,5 +91,8 @@ class ParkingSpotView(viewsets.ModelViewSet):
             query = [Q(modified__gt=make_aware(datetime.fromtimestamp(previous_timestamp)))] + query
 
         nearby_spots = ParkingSpot.objects.filter(*query)
-
-        return Response({x.pk: x.get_state() for x in nearby_spots}, headers={"X-Timestamp": now().timestamp()})
+        return Response(
+            {"spots": [{"id": x.pk, "state": x.get_state()} for x in nearby_spots]},
+            headers={"X-Timestamp": now().timestamp()},
+        )
+        # return Response({x.pk: x.get_state()for x in nearby_spots}, headers={"X-Timestamp": now().timestamp()})
