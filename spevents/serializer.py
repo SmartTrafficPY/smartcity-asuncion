@@ -6,4 +6,4 @@ from .models import Events
 class EventsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Events
-        fields = ("user", "spot", "lot", "action")
+        fields = ("user", "lot", "action")
