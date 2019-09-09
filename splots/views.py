@@ -64,6 +64,7 @@ class ParkingSpotView(viewsets.ModelViewSet):
 
         spot.state = ParkingSpot.STATE_OCCUPIED
         spot.save()
+        # create a event
         return Response(status=200)
 
     @action(methods=["post"], detail=True, permission_classes=(IsSuperUserOrStaff | IsSmartParkingUser,))
@@ -71,6 +72,7 @@ class ParkingSpotView(viewsets.ModelViewSet):
         spot = ParkingSpot.objects.get(pk=pk)
         spot.state = ParkingSpot.STATE_FREE
         spot.save()
+        # create a event
         return Response(status=200)
 
     @action(methods=["post"], detail=False, permission_classes=(IsSuperUserOrStaff | IsSmartParkingUser,))
