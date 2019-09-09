@@ -22,7 +22,7 @@ class ParkingSpotSerializer(serializers.HyperlinkedModelSerializer):
         fields = ("url", "state", "polygon", "lot")
 
     def get_state(self, spot):
-        return "A"  # spot.get_state()
+        return spot.get_state()
 
 
 class ParkingLotSpotSerializer(ParkingSpotSerializer):

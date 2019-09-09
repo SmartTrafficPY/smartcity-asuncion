@@ -28,7 +28,10 @@ class GeoJSONRenderer(renderers.JSONRenderer):
         return {"type": "Feature", "properties": properties, "geometry": geometry}
 
     def render(self, data, accepted_media_type=None, renderer_context=None):
-        if isinstance(data, dict):
+        if data is None:
+            pass
+
+        elif isinstance(data, dict):
             data = self._render_feature(data)
 
         else:
