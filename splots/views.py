@@ -109,7 +109,7 @@ class ParkingSpotView(viewsets.ModelViewSet):
         nearby_spots = ParkingSpot.objects.filter(*query)
         if isinstance(request.accepted_renderer, SpotGeoJSONRenderer):
             return Response(
-                (ParkingSpotSerializer(x, context={"request": request}) for x in nearby_spots),
+                (ParkingSpotSerializer(x, context={"request": request}).data for x in nearby_spots),
                 headers={"X-Timestamp": now().timestamp()},
             )
 
