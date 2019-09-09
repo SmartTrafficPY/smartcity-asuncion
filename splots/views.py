@@ -13,8 +13,8 @@ from rest_framework.response import Response
 from smasu.authentication import IsListView, IsRetrieveView, IsSuperUserOrStaff, TokenAuthenticationInQuery
 
 from .models import ParkingLot, ParkingSpot
-from .renderers import SpotGeoJSONRenderer
-from .serializers import NearbySpotsRequest, ParkingLotSerializer, ParkingSpotSerializer
+from .renderers import LotGeoJSONRenderer, SpotGeoJSONRenderer
+from .serializers import NearbySpotsRequest, ParkingLotSerializer, ParkingLotSpotSerializer, ParkingSpotSerializer
 
 
 class IsSmartParkingUser(IsAuthenticated):
@@ -28,16 +28,29 @@ class IsSafeReadOnlyView(BasePermission):
         return view.action in {"list", "retrieve"}
 
 
+def as_state_map(spots):
+    return {x.pk: x.get_state() for x in spots}
+
+
 class ParkingLotView(viewsets.ModelViewSet):
     queryset = ParkingLot.objects.all()
     serializer_class = ParkingLotSerializer
     authentication_classes = (SessionAuthentication, TokenAuthenticationInQuery)
     permission_classes = (IsSuperUserOrStaff | (IsSafeReadOnlyView & IsAuthenticated),)
+    renderer_classes = [LotGeoJSONRenderer, renderers.BrowsableAPIRenderer]
 
-    @action(methods=["get"], detail=True, permission_classes=(IsAuthenticated,))
-    def spots(self, request, pk=None):
-        lots = ParkingSpot.objects.filter(lot=pk).all()
-        return Response({"spots": [{"id": x.pk, "state": x.get_state()} for x in lots]})
+    @action(
+        methods=["get"],
+        detail=True,
+        permission_classes=(IsAuthenticated,),
+        renderer_classes=[renderers.JSONRenderer, SpotGeoJSONRenderer, renderers.BrowsableAPIRenderer],
+    )
+    def spots(self, request, pk=None, format=None):
+        spots = ParkingSpot.objects.filter(lot=pk)
+        if isinstance(request.accepted_renderer, SpotGeoJSONRenderer):
+            return Response((ParkingLotSpotSerializer(x, context={"request": request}).data for x in spots))
+
+        return Response(as_state_map(spots))
 
 
 class ParkingSpotView(viewsets.ModelViewSet):
@@ -75,7 +88,12 @@ class ParkingSpotView(viewsets.ModelViewSet):
         # create a event
         return Response(status=200)
 
-    @action(methods=["post"], detail=False, permission_classes=(IsSuperUserOrStaff | IsSmartParkingUser,))
+    @action(
+        methods=["post"],
+        detail=False,
+        permission_classes=(IsSuperUserOrStaff | IsSmartParkingUser,),
+        renderer_classes=[renderers.JSONRenderer, SpotGeoJSONRenderer, renderers.BrowsableAPIRenderer],
+    )
     def nearby(self, request, format=None):
         serializer = self.get_serializer_class()(data=request.data)
         if not serializer.is_valid():
@@ -91,8 +109,9 @@ class ParkingSpotView(viewsets.ModelViewSet):
             query = [Q(modified__gt=make_aware(datetime.fromtimestamp(previous_timestamp)))] + query
 
         nearby_spots = ParkingSpot.objects.filter(*query)
+        if isinstance(request.accepted_renderer, SpotGeoJSONRenderer):
+            return Response(
+                (ParkingSpotSerializer(x) for x in nearby_spots), headers={"X-Timestamp": now().timestamp()}
+            )
 
-        return Response(
-            {"spots": [{"id": x.pk, "state": x.get_state()} for x in nearby_spots]},
-            headers={"X-Timestamp": now().timestamp()},
-        )
+        return Response(as_state_map(nearby_spots), headers={"X-Timestamp": now().timestamp()})
