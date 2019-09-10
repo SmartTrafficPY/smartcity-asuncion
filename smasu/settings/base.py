@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "smevents",
     "spusers",
     "splots",
+    "smovusers",
     "rest_framework",
     "rest_framework.authtoken",
 ]
