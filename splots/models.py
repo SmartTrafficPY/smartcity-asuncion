@@ -14,7 +14,7 @@ class ParkingLot(models.Model):
     modified = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.name
+        return f"{self.pk} - {self.name}"
 
 
 class ParkingSpot(models.Model):
@@ -39,4 +39,4 @@ class ParkingSpot(models.Model):
         return self.state
 
     def __str__(self):
-        return f"{self.lot.name} - {self.pk}"
+        return f"{self.pk} - Lot({self.lot})"

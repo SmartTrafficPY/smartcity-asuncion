@@ -8,9 +8,9 @@ from django.utils.timezone import make_aware, now
 from rest_framework import renderers, serializers, viewsets
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import action
-from rest_framework.permissions import BasePermission, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from smasu.authentication import IsRetrieveView, IsSuperUserOrStaff, TokenAuthenticationInQuery
+from smasu.authentication import IsRetrieveView, IsSafeReadOnlyView, IsSuperUserOrStaff, TokenAuthenticationInQuery
 
 from .models import ParkingLot, ParkingSpot
 from .renderers import LotGeoJSONRenderer, SpotGeoJSONRenderer
@@ -19,13 +19,7 @@ from .serializers import NearbySpotsRequest, ParkingLotSerializer, ParkingLotSpo
 
 class IsSmartParkingUser(IsAuthenticated):
     def has_permission(self, request, view):
-        profile = request.user.smartparkingprofile
-        return super().has_permission(request, view) and profile is not None
-
-
-class IsSafeReadOnlyView(BasePermission):
-    def has_permission(self, request, view):
-        return view.action in {"list", "retrieve"}
+        return super().has_permission(request, view) and request.user.smartparkingprofile is not None
 
 
 def as_state_map(spots):

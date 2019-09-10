@@ -12,6 +12,11 @@ class IsRetrieveView(BasePermission):
         return view.action == "retrieve"
 
 
+class IsSafeReadOnlyView(BasePermission):
+    def has_permission(self, request, view):
+        return view.action in {"list", "retrieve"}
+
+
 class IsCreateView(BasePermission):
     def has_permission(self, request, view):
         return view.action == "create"

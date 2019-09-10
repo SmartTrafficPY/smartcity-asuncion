@@ -4,7 +4,6 @@ from rest_framework import routers
 from . import views
 
 router = routers.SimpleRouter()
-router.register("lots", views.ParkingLotView)
-router.register("spots", views.ParkingSpotView)
+router.register("events", views.EventViewSet)
 
 urlpatterns = [path("", include(router.urls))]
