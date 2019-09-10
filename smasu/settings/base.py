@@ -39,8 +39,10 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django_extensions",
     "rest_framework",
+    "rest_framework.authtoken",
     "smusers",
     "smhealth",
+    "smovusers",
 ]
 
 MIDDLEWARE = [
@@ -80,10 +82,10 @@ WSGI_APPLICATION = "smasu.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "smarttraffic",
-        "USER": "smarttraffic",
-        "PASSWORD": "smarttraffic",
-        "HOST": "127.0.0.1",
+        "NAME": "postgres",
+        "USER": "postgres",
+        "PASSWORD": "postgres",
+        "HOST": "192.168.99.100",
         "PORT": "5432",
     }
 }
