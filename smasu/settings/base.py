@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+from datetime import timedelta
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -34,14 +35,18 @@ INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
+    "django.contrib.gis",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_extensions",
     "rest_framework",
     "rest_framework.authtoken",
-    "smusers",
+    "smasu",
     "smhealth",
+    "smevents",
+    "spusers",
+    "splots",
     "smovusers",
 ]
 
@@ -81,7 +86,7 @@ WSGI_APPLICATION = "smasu.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
+        "ENGINE": "django.contrib.gis.db.backends.postgis",
         "NAME": "postgres",
         "USER": "postgres",
         "PASSWORD": "postgres",
@@ -120,3 +125,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = "/static/"
+
+NEARBY_SPOTS_DEFAULT_DISTANCE = 2000  # default "nearby" distance, in meters
+SPOT_STATE_EXPIRATION_TIME = timedelta(hours=80)  # default "state is too old to consider if older than this"

@@ -8,12 +8,14 @@ pre-commit = "*"
 flake8 = "*"
 black = "*"
 isort = "*"
+pdbpp = "*"
 
 [packages]
-django = "*"
+django = "<2.3,>=2.2.4"
 djangorestframework = "*"
 psycopg2 = "*"
 django-extensions = "*"
+ijson = "*"
 
 [requires]
 python_version = "3.7"
