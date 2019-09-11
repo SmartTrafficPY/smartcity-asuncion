@@ -6,4 +6,4 @@ from . import views
 router = routers.SimpleRouter()
 router.register("events", views.EventViewSet)
 
-urlpatterns = [path("", include(router.urls))]
+urlpatterns = [path("services/", include(router.urls))]
