@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+docker run \
+    --name osm_tile_server \
+    -p 10080:80 \
+    -v openstreetmap-data:/var/lib/postgresql/10/main \
+    -v openstreetmap-rendered-tiles:/var/lib/mod_tile \
+    -e ALLOW_CORS=1 \
+    -d overv/openstreetmap-tile-server \
+    run
