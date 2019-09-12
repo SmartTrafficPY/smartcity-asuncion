@@ -15,15 +15,23 @@ class NearbySpotsRequest(serializers.Serializer):
 
 
 class ParkingSpotSerializer(serializers.HyperlinkedModelSerializer):
+    state = serializers.SerializerMethodField()
+
     class Meta:
         model = ParkingSpot
-        fields = "__all__"
+        fields = ("url", "state", "polygon", "lot")
+
+    def get_state(self, spot):
+        return spot.get_state()
+
+
+class ParkingLotSpotSerializer(ParkingSpotSerializer):
+    class Meta:
+        model = ParkingSpot
+        fields = ("url", "state", "polygon")
 
 
 class ParkingLotSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ParkingLot
-        fields = ("url", "radio", "name", "center", "created", "modified")
-
-    def get_spot_map(self, obj):
-        return [(x.id, x.state) for x in obj.spots.all()]
+        fields = ("url", "radio", "name", "center")

@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "smasu",
     "smhealth",
+    "smevents",
     "spusers",
     "splots",
 ]
