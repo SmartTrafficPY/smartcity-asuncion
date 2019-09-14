@@ -3,13 +3,8 @@ from rest_framework import serializers
 from .models import ParkingLot, ParkingSpot
 
 
-class PointSerializer(serializers.Serializer):
-    lon = serializers.FloatField()
-    lat = serializers.FloatField()
-
-
 class NearbySpotsRequest(serializers.Serializer):
-    point = PointSerializer()
+    point = serializers.CharField()
     distance = serializers.FloatField(required=False)
     previous_timestamp = serializers.FloatField(required=False)
 
@@ -34,4 +29,4 @@ class ParkingLotSpotSerializer(ParkingSpotSerializer):
 class ParkingLotSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ParkingLot
-        fields = ("url", "radio", "name", "center")
+        fields = ("url", "name", "center", "monitoring_distance")

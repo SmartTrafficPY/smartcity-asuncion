@@ -12,7 +12,7 @@ SmartParkingEventType.as_entity = lambda self: reverse("entities:smartparking_ev
 
 
 class ParkingLot(models.Model):
-    radio = models.FloatField(blank=False)
+    monitoring_distance = models.FloatField(blank=False)
     name = models.CharField(max_length=50)
 
     center = PointField()
