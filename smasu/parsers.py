@@ -2,7 +2,7 @@ import json
 
 from django.contrib.gis.geos import GEOSGeometry
 from rest_framework import exceptions, parsers
-from smasu.renderers import GeoJSONRenderer
+from smasu.renderers import GeoJSONRenderer, NearbyGeoJSONRenderer
 
 
 class GeoJSONParser(parsers.JSONParser):
@@ -34,3 +34,8 @@ class GeoJSONParser(parsers.JSONParser):
             json_obj[prop] = value
 
         return json_obj
+
+
+class NearbyGeoJSONParser(GeoJSONParser):
+    renderer_class = NearbyGeoJSONRenderer
+    geometry_key = "point"

@@ -15,10 +15,11 @@ class GeoJSONRenderer(renderers.JSONRenderer):
         properties = {}
         for key in feature:
             value = feature.get(key)
-            if value is not None and key in {self.geometry_field} | self.other_geometry_fields:
-                value = GEOSGeometry(value)
-                if value:
-                    value = json.loads(value.json)
+            if key in {self.geometry_field} | self.other_geometry_fields:
+                if isinstance(value, str) and len(value) == 0:
+                    value = None
+                if value is not None:
+                    value = json.loads(GEOSGeometry(value).json)
 
             if key == self.geometry_field:
                 geometry = value
@@ -43,3 +44,7 @@ class GeoJSONRenderer(renderers.JSONRenderer):
             data = {"type": "FeatureCollection", "features": geojson_features}
 
         return super().render(data, accepted_media_type=accepted_media_type, renderer_context=renderer_context)
+
+
+class NearbyGeoJSONRenderer(GeoJSONRenderer):
+    geometry_field = "point"

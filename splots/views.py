@@ -6,7 +6,7 @@ from django.contrib.gis.measure import D
 from django.db import transaction
 from django.db.models import Q
 from django.utils.timezone import make_aware, now
-from rest_framework import renderers, serializers, viewsets
+from rest_framework import parsers, renderers, serializers, viewsets
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -14,11 +14,14 @@ from rest_framework.response import Response
 from smasu.authentication import IsRetrieveView, IsSafeReadOnlyView, IsSuperUserOrStaff, TokenAuthenticationInQuery
 from smasu.helpers import as_entity
 from smasu.models import Application
+from smasu.parsers import NearbyGeoJSONParser
+from smasu.renderers import NearbyGeoJSONRenderer
 from smevents.models import Event
 
 from .helpers import SmartParkingCacheHelper
 from .models import ParkingLot, ParkingSpot, SmartParkingEventType
-from .renderers import LotGeoJSONRenderer, SpotGeoJSONRenderer
+from .parsers import ParkingSpotGeoJSONParser
+from .renderers import ParkingLotGeoJSONRenderer, ParkingSpotGeoJSONRenderer
 from .serializers import NearbySpotsRequest, ParkingLotSerializer, ParkingLotSpotSerializer, ParkingSpotSerializer
 
 
@@ -36,17 +39,17 @@ class ParkingLotView(viewsets.ModelViewSet):
     serializer_class = ParkingLotSerializer
     authentication_classes = (SessionAuthentication, TokenAuthenticationInQuery)
     permission_classes = (IsSuperUserOrStaff | (IsSafeReadOnlyView & IsAuthenticated),)
-    renderer_classes = [LotGeoJSONRenderer, renderers.BrowsableAPIRenderer]
+    renderer_classes = [ParkingLotGeoJSONRenderer, renderers.BrowsableAPIRenderer]
 
     @action(
         methods=["get"],
         detail=True,
         permission_classes=(IsAuthenticated,),
-        renderer_classes=[renderers.JSONRenderer, SpotGeoJSONRenderer, renderers.BrowsableAPIRenderer],
+        renderer_classes=[renderers.JSONRenderer, ParkingSpotGeoJSONRenderer, renderers.BrowsableAPIRenderer],
     )
     def spots(self, request, pk=None, format=None):
         spots = ParkingSpot.objects.filter(lot=pk)
-        if isinstance(request.accepted_renderer, SpotGeoJSONRenderer):
+        if isinstance(request.accepted_renderer, ParkingSpotGeoJSONRenderer):
             return Response((ParkingLotSpotSerializer(x, context={"request": request}).data for x in spots))
 
         return Response(as_state_map(spots))
@@ -56,7 +59,8 @@ class ParkingSpotView(viewsets.ModelViewSet):
     queryset = ParkingSpot.objects.all()
     authentication_classes = (SessionAuthentication, TokenAuthenticationInQuery)
     permission_classes = (IsSuperUserOrStaff | (IsRetrieveView & IsSmartParkingUser),)
-    renderer_classes = [SpotGeoJSONRenderer, renderers.BrowsableAPIRenderer]
+    parser_classes = (ParkingSpotGeoJSONParser, parsers.JSONParser, parsers.FormParser)
+    renderer_classes = [ParkingSpotGeoJSONRenderer, renderers.BrowsableAPIRenderer]
 
     def get_serializer_class(self):
         if self.action in {"set", "reset"}:
@@ -111,7 +115,8 @@ class ParkingSpotView(viewsets.ModelViewSet):
         methods=["post"],
         detail=False,
         permission_classes=(IsSuperUserOrStaff | IsSmartParkingUser,),
-        renderer_classes=[renderers.JSONRenderer, SpotGeoJSONRenderer, renderers.BrowsableAPIRenderer],
+        parser_classes=(NearbyGeoJSONParser, parsers.JSONParser, parsers.FormParser),
+        renderer_classes=[NearbyGeoJSONRenderer, renderers.JSONRenderer, renderers.BrowsableAPIRenderer],
     )
     def nearby(self, request, format=None):
         serializer = self.get_serializer_class()(data=request.data)
@@ -128,7 +133,7 @@ class ParkingSpotView(viewsets.ModelViewSet):
             query = [Q(modified__gt=make_aware(datetime.fromtimestamp(previous_timestamp)))] + query
 
         nearby_spots = ParkingSpot.objects.filter(*query)
-        if isinstance(request.accepted_renderer, SpotGeoJSONRenderer):
+        if isinstance(request.accepted_renderer, NearbyGeoJSONRenderer):
             return Response(
                 (ParkingSpotSerializer(x, context={"request": request}).data for x in nearby_spots),
                 headers={"X-Timestamp": now().timestamp()},

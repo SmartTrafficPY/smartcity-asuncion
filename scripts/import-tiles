@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+PLANET_PATH="${PLANET_PATH:-south-america/paraguay-latest.osm.pbf}"
+PLANET_URL=https://download.geofabrik.de/${PLANET_PATH}
+
+IFS="/" read -ra PLANET_PATH_SPLIT <<< $PLANET_PATH
+PLANET_FILE=${PLANET_PATH_SPLIT[-1]}
+
+PLANET_TEMP_DIR=$(mktemp -d -t ci-XXXXXXXXXX)
+
+rm -f $PLANET_TEMP_DIR/$PLANET_FILE && wget -O $PLANET_TEMP_DIR/$PLANET_FILE $PLANET_URL
+
+docker run \
+    -v $PLANET_TEMP_DIR/$PLANET_FILE:/data.osm.pbf \
+    -v openstreetmap-data:/var/lib/postgresql/10/main \
+    overv/openstreetmap-tile-server \
+    import
+
+rm -rd $PLANET_TEMP_DIR
