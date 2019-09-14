@@ -1,0 +1,6 @@
+- model: smasu.application
+  pk: 1
+  fields:
+    name: smartparking
+    created: "2019-09-10T21:51:47.641Z"
+    modified: "2019-09-10T21:51:47.641Z"

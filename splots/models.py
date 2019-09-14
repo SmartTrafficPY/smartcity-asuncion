@@ -1,7 +1,14 @@
+from enum import Enum
+
 from django.conf import settings
 from django.contrib.gis.db.models import PointField, PolygonField
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
+from django.utils.text import slugify
+
+SmartParkingEventType = Enum("SmartParkingEventType", "OCCUPY_SPOT FREE_SPOT ENTER_LOT EXIT_LOT")
+SmartParkingEventType.as_entity = lambda self: reverse("entities:smartparking_event_types", args=(slugify(self.name),))
 
 
 class ParkingLot(models.Model):

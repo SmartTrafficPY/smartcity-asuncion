@@ -3,6 +3,7 @@ from datetime import datetime
 from django.conf import settings
 from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import D
+from django.db import transaction
 from django.db.models import Q
 from django.utils.timezone import make_aware, now
 from rest_framework import renderers, serializers, viewsets
@@ -11,8 +12,12 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from smasu.authentication import IsRetrieveView, IsSafeReadOnlyView, IsSuperUserOrStaff, TokenAuthenticationInQuery
+from smasu.helpers import as_entity
+from smasu.models import Application
+from smevents.models import Event
 
-from .models import ParkingLot, ParkingSpot
+from .helpers import SmartParkingCacheHelper
+from .models import ParkingLot, ParkingSpot, SmartParkingEventType
 from .renderers import LotGeoJSONRenderer, SpotGeoJSONRenderer
 from .serializers import NearbySpotsRequest, ParkingLotSerializer, ParkingLotSpotSerializer, ParkingSpotSerializer
 
@@ -64,21 +69,42 @@ class ParkingSpotView(viewsets.ModelViewSet):
 
     @action(methods=["post"], detail=True, permission_classes=(IsSuperUserOrStaff | IsSmartParkingUser,))
     def set(self, request, pk, format=None):
-        try:
-            spot = ParkingSpot.objects.get(pk=pk)
-        except ParkingSpot.DoesNotExist:
-            return Response(status=404)
-        # add a event register
-        spot.state = ParkingSpot.STATE_OCCUPIED
-        spot.save()
+        with transaction.atomic():
+            try:
+                spot = ParkingSpot.objects.get(pk=pk)
+            except ParkingSpot.DoesNotExist:
+                return Response(status=404)
+
+            spot.state = ParkingSpot.STATE_OCCUPIED
+            spot.save()
+
+            Event(
+                application=SmartParkingCacheHelper.get_object("application", Application, {"name": "smartparking"}),
+                e_type=as_entity(SmartParkingEventType.OCCUPY_SPOT),
+                agent=as_entity(request.user),
+                position=spot.polygon.centroid,
+            ).save()
+
         return Response(status=200)
 
     @action(methods=["post"], detail=True, permission_classes=(IsSuperUserOrStaff | IsSmartParkingUser,))
     def reset(self, request, pk, format=None):
-        spot = ParkingSpot.objects.get(pk=pk)
-        # add a event register
-        spot.state = ParkingSpot.STATE_FREE
-        spot.save()
+        with transaction.atomic():
+            try:
+                spot = ParkingSpot.objects.get(pk=pk)
+            except ParkingSpot.DoesNotExist:
+                return Response(status=404)
+
+            spot.state = ParkingSpot.STATE_FREE
+            spot.save()
+
+            Event(
+                application=SmartParkingCacheHelper.get_object("application", Application, {"name": "smartparking"}),
+                e_type=as_entity(SmartParkingEventType.FREE_SPOT),
+                agent=as_entity(request.user),
+                position=spot.polygon.centroid,
+            ).save()
+
         return Response(status=200)
 
     @action(
