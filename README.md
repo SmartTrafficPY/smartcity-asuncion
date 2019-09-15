@@ -230,3 +230,18 @@ Other thing that might be useful is restarting docker, that may solve some troub
 ```
 $ docker-machine restart
 ```
+
+
+
+
+deploy
+define postgres.env and smartcity.env
+
+docker-compose run smartcity python manage.py createdb
+docker-compose run smartcity python manage.py migrate
+docker-compose run smartcity python manage.py loaddata initial
+docker-compose run smartcity python manage.py createsuperuser
+
+
+docker-compose run smartcity python manage.py migrate
+docker-compose run smartcity /build-staticfiles.sh
