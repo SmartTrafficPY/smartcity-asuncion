@@ -5,10 +5,10 @@ from rest_framework import renderers
 
 
 class GeoJSONRenderer(renderers.JSONRenderer):
-    geometry_field = "geometry"
-    other_geometry_fields = set()
     media_type = "application/vnd.geo+json"
     format = "geojson"
+    geometry_field = "geometry"
+    other_geometry_fields = set()
 
     def _render_feature(self, feature):
         geometry = None

@@ -4,5 +4,5 @@ from .renderers import EventGeoJSONRenderer
 
 
 class EventGeoJSONParser(GeoJSONParser):
-    geometry_key = "position"
     renderer_class = EventGeoJSONRenderer
+    geometry_key = "position"
