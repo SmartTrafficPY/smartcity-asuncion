@@ -1,11 +1,7 @@
 from django.contrib.gis import admin
+from smasu.admin import SmartTrafficOSMGeoAdmin
 
 from .models import ParkingLot, ParkingSpot
 
-
-class SmartTrafficOSMGeoAdmin(admin.OSMGeoAdmin):
-    map_template = "gis/admin/smarttraffic_osm.html"
-
-
-admin.site.register(ParkingLot, admin.GeoModelAdmin)
+admin.site.register(ParkingLot, SmartTrafficOSMGeoAdmin)
 admin.site.register(ParkingSpot, SmartTrafficOSMGeoAdmin)

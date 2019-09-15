@@ -133,3 +133,6 @@ PLATFORM_NAME = "SmartCity Asunción"
 
 NEARBY_SPOTS_DEFAULT_DISTANCE = 2000  # default "nearby" distance, in meters
 SPOT_STATE_EXPIRATION_TIME = timedelta(hours=80)  # default "state is too old to consider if older than this"
+
+OSM_LAYER_NAME = None
+OSM_LAYER_URL_PATTERN = None
