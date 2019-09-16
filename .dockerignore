@@ -87,3 +87,6 @@ db.sqlite3
 /requirements/
 /static
 /.venv
+
+# configuration that should be kept secret
+*.env

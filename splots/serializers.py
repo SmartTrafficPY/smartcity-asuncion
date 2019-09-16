@@ -6,7 +6,7 @@ from .models import ParkingLot, ParkingSpot
 class NearbySpotsRequest(serializers.Serializer):
     point = serializers.CharField()
     distance = serializers.FloatField(required=False)
-    previous_timestamp = serializers.FloatField(required=False)
+    previous_timestamp = serializers.FloatField(required=False, allow_null=True)
 
 
 class ParkingSpotSerializer(serializers.HyperlinkedModelSerializer):

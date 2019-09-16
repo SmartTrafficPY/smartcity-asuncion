@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from django.conf import settings
-from django.contrib.gis.geos import Point
+from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.gis.measure import D
 from django.db import transaction
 from django.db.models import Q
@@ -20,7 +20,7 @@ from smevents.models import Event
 
 from .helpers import SmartParkingCacheHelper
 from .models import ParkingLot, ParkingSpot, SmartParkingEventType
-from .parsers import ParkingSpotGeoJSONParser
+from .parsers import ParkingLotGeoJSONParser, ParkingSpotGeoJSONParser
 from .renderers import ParkingLotGeoJSONRenderer, ParkingSpotGeoJSONRenderer
 from .serializers import NearbySpotsRequest, ParkingLotSerializer, ParkingLotSpotSerializer, ParkingSpotSerializer
 
@@ -39,6 +39,7 @@ class ParkingLotView(viewsets.ModelViewSet):
     serializer_class = ParkingLotSerializer
     authentication_classes = (SessionAuthentication, TokenAuthenticationInQuery)
     permission_classes = (IsSuperUserOrStaff | (IsSafeReadOnlyView & IsAuthenticated),)
+    parser_classes = (ParkingLotGeoJSONParser, parsers.FormParser)
     renderer_classes = [ParkingLotGeoJSONRenderer, renderers.BrowsableAPIRenderer]
 
     @action(
@@ -59,7 +60,7 @@ class ParkingSpotView(viewsets.ModelViewSet):
     queryset = ParkingSpot.objects.all()
     authentication_classes = (SessionAuthentication, TokenAuthenticationInQuery)
     permission_classes = (IsSuperUserOrStaff | (IsRetrieveView & IsSmartParkingUser),)
-    parser_classes = (ParkingSpotGeoJSONParser, parsers.JSONParser, parsers.FormParser)
+    parser_classes = (ParkingSpotGeoJSONParser, parsers.FormParser)
     renderer_classes = [ParkingSpotGeoJSONRenderer, renderers.BrowsableAPIRenderer]
 
     def get_serializer_class(self):
@@ -115,21 +116,21 @@ class ParkingSpotView(viewsets.ModelViewSet):
         methods=["post"],
         detail=False,
         permission_classes=(IsSuperUserOrStaff | IsSmartParkingUser,),
-        parser_classes=(NearbyGeoJSONParser, parsers.JSONParser, parsers.FormParser),
-        renderer_classes=[NearbyGeoJSONRenderer, renderers.JSONRenderer, renderers.BrowsableAPIRenderer],
+        parser_classes=(NearbyGeoJSONParser, parsers.FormParser),
+        renderer_classes=[renderers.JSONRenderer, NearbyGeoJSONRenderer, renderers.BrowsableAPIRenderer],
     )
     def nearby(self, request, format=None):
         serializer = self.get_serializer_class()(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=400)
 
-        point_data = serializer.validated_data["point"]
+        point = GEOSGeometry(serializer.validated_data["point"])
         distance = serializer.validated_data.get("distance", settings.NEARBY_SPOTS_DEFAULT_DISTANCE)
 
-        query = [Q(polygon__distance_lte=(Point(x=point_data["lon"], y=point_data["lat"]), D(m=distance)))]
+        query = [Q(polygon__distance_lte=(point, D(m=distance)))]
 
         previous_timestamp = serializer.validated_data.get("previous_timestamp")
-        if previous_timestamp:
+        if previous_timestamp is not None:
             query = [Q(modified__gt=make_aware(datetime.fromtimestamp(previous_timestamp)))] + query
 
         nearby_spots = ParkingSpot.objects.filter(*query)
