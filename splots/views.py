@@ -138,5 +138,4 @@ class ParkingSpotView(viewsets.ModelViewSet):
                 (ParkingSpotSerializer(x, context={"request": request}).data for x in nearby_spots),
                 headers={"X-Timestamp": now().timestamp()},
             )
-
         return Response(as_state_map(nearby_spots), headers={"X-Timestamp": now().timestamp()})
