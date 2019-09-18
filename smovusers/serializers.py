@@ -5,16 +5,15 @@ from rest_framework import serializers
 
 from .models import MovementType, SmartMovingProfile
 
+# class TypeMovementSerializer(serializers.ModelSerializer):
+#  class Meta:
 
-class TypeMovementSerializer(serializers.ModelSerializer):
-    class Meta:
-
-        model = MovementType
-        fields = ("id", "name")
+#    model = MovementType
+#   fields = ("name",)
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    type_movement = TypeMovementSerializer()
+    # type_movement = TypeMovementSerializer()
 
     class Meta:
         model = SmartMovingProfile
@@ -33,7 +32,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         # fields = "__all__"
-        fields = ("url", "password", "email", "smartmovingprofile")
+        fields = ("url", "username", "email", "password", "smartmovingprofile")
 
     def create(self, validated_data):
         profile_data = validated_data.pop("smartmovingprofile", None)
@@ -58,6 +57,7 @@ class UserSerializer(serializers.ModelSerializer):
             instance.password = make_password(password)
         instance.first_name = validated_data.get("first_name", instance.first_name)
         instance.last_name = validated_data.get("last_name", instance.last_name)
+        instance.email = validated_data.get("email", instance.email)
 
         with transaction.atomic():
             instance.save()
@@ -65,9 +65,15 @@ class UserSerializer(serializers.ModelSerializer):
             if profile_data:
                 profile = instance.smartmovingprofile
                 if profile:
+
                     profile.birth_date = profile_data.get("birth_date", profile.birth_date)
                     profile.sex = profile_data.get("sex", profile.sex)
-                    profile.typemovement = profile.data.get("typemovement", profile.typemovement)
+                    profile.type_movement = profile_data.get("type_movement", profile.type_movement)
+
+                    # profile.type_movement= profile_data.get("type_movement", profile.type_movement)
+                    # mt = MovementType.Objects.get(pk=instance.name)
+                    # profile.typemovement = mt
+
                     profile.save()
                 else:
                     SmartMovingProfile.objects.create(user=instance, **profile_data)
