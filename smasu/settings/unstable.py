@@ -17,5 +17,11 @@ DATABASES = {
     }
 }
 
+NEARBY_SPOTS_DEFAULT_DISTANCE = os.getenv("NEARBY_SPOTS_DEFAULT_DISTANCE", NEARBY_SPOTS_DEFAULT_DISTANCE)
+
+spot_state_expires_in_hours = os.getenv("SPOT_STATE_EXPIRATION_TIME")
+if spot_state_expires_in_hours:
+    SPOT_STATE_EXPIRATION_TIME = timedelta(hours=int(spot_state_expires_in_hours))
+
 OSM_LAYER_NAME = os.getenv("OSM_LAYER_NAME")
 OSM_LAYER_URL_PATTERN = os.getenv("OSM_LAYER_URL_PATTERN")
