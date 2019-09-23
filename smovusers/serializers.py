@@ -5,15 +5,14 @@ from rest_framework import serializers
 
 from .models import MovementType, SmartMovingProfile
 
-# class TypeMovementSerializer(serializers.ModelSerializer):
-#  class Meta:
-
-#    model = MovementType
-#   fields = ("name",)
+class TypeMovementSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = MovementType
+        fields = ("id",)
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    # type_movement = TypeMovementSerializer()
 
     class Meta:
         model = SmartMovingProfile
@@ -32,20 +31,22 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         # fields = "__all__"
-        fields = ("url", "username", "email", "password", "smartmovingprofile")
+        fields = ("url", "username", "password", "smartmovingprofile")
 
     def create(self, validated_data):
         profile_data = validated_data.pop("smartmovingprofile", None)
 
+
         password = validated_data.get("password")
         if password:
             validated_data["password"] = make_password(password)
-
+        print(profile_data)
+  
         with transaction.atomic():
             instance = User.objects.create(**validated_data)
             if profile_data:
                 SmartMovingProfile.objects.create(user=instance, **profile_data)
-
+                
         instance = User.objects.get(pk=instance.pk)
         return instance
 
@@ -68,7 +69,7 @@ class UserSerializer(serializers.ModelSerializer):
 
                     profile.birth_date = profile_data.get("birth_date", profile.birth_date)
                     profile.sex = profile_data.get("sex", profile.sex)
-                    profile.type_movement = profile_data.get("type_movement", profile.type_movement)
+                    #profile.type_movement = profile_data.get("type_movement", profile.type_movement)
 
                     # profile.type_movement= profile_data.get("type_movement", profile.type_movement)
                     # mt = MovementType.Objects.get(pk=instance.name)
