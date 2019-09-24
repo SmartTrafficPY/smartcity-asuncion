@@ -5,7 +5,7 @@ from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.gis.measure import D
 from django.db import transaction
 from django.db.models import Q
-from django.utils.timezone import make_aware, now
+from django.utils import timezone
 from rest_framework import parsers, renderers, serializers, viewsets
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import action
@@ -130,13 +130,26 @@ class ParkingSpotView(viewsets.ModelViewSet):
         query = [Q(polygon__distance_lte=(point, D(m=distance)))]
 
         previous_timestamp = serializer.validated_data.get("previous_timestamp")
+        lb_datetime = timezone.make_aware(datetime.fromtimestamp(previous_timestamp))
+        ub_datetime = timezone.now()
+
         if previous_timestamp is not None:
-            query = [Q(modified__gt=make_aware(datetime.fromtimestamp(previous_timestamp)))] + query
+            # check that either the modified time or the decay time are within the "last time to now" window
+            query = [
+                Q(modified__range=(lb_datetime, ub_datetime))
+                | Q(
+                    modified__range=(
+                        lb_datetime - settings.SPOT_STATE_EXPIRATION_TIME,
+                        ub_datetime - settings.SPOT_STATE_EXPIRATION_TIME,
+                    )
+                )
+            ] + query
 
         nearby_spots = ParkingSpot.objects.filter(*query)
         if isinstance(request.accepted_renderer, NearbyGeoJSONRenderer):
             return Response(
                 (ParkingSpotSerializer(x, context={"request": request}).data for x in nearby_spots),
-                headers={"X-Timestamp": now().timestamp()},
+                headers={"X-Timestamp": timezone.now().timestamp()},
             )
-        return Response(as_state_map(nearby_spots), headers={"X-Timestamp": now().timestamp()})
+
+        return Response(as_state_map(nearby_spots), headers={"X-Timestamp": timezone.now().timestamp()})
