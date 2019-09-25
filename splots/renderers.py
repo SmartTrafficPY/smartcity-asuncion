@@ -2,7 +2,7 @@ from smasu.renderers import GeoJSONRenderer
 
 
 class ParkingLotGeoJSONRenderer(GeoJSONRenderer):
-    other_geometry_fields = {"center"}
+    other_geometry_fields = {"center", "entrance"}
 
 
 class ParkingSpotGeoJSONRenderer(GeoJSONRenderer):

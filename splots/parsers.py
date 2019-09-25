@@ -5,7 +5,7 @@ from .renderers import ParkingSpotGeoJSONRenderer
 
 class ParkingLotGeoJSONParser(GeoJSONParser):
     renderer_class = ParkingSpotGeoJSONRenderer
-    other_geometry_keys = {"center"}
+    other_geometry_keys = {"center", "entrance"}
 
 
 class ParkingSpotGeoJSONParser(GeoJSONParser):
