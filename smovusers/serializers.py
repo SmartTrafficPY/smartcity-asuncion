@@ -5,12 +5,6 @@ from rest_framework import serializers
 
 from .models import MovementType, SmartMovingProfile
 
-class TypeMovementSerializer(serializers.ModelSerializer):
-    
-    class Meta:
-        model = MovementType
-        fields = ("id",)
-
 
 class ProfileSerializer(serializers.ModelSerializer):
 
@@ -70,10 +64,6 @@ class UserSerializer(serializers.ModelSerializer):
                     profile.birth_date = profile_data.get("birth_date", profile.birth_date)
                     profile.sex = profile_data.get("sex", profile.sex)
                     #profile.type_movement = profile_data.get("type_movement", profile.type_movement)
-
-                    # profile.type_movement= profile_data.get("type_movement", profile.type_movement)
-                    # mt = MovementType.Objects.get(pk=instance.name)
-                    # profile.typemovement = mt
 
                     profile.save()
                 else:

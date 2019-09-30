@@ -87,10 +87,10 @@ WSGI_APPLICATION = "smasu.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.contrib.gis.db.backends.postgis",
-        "NAME": "postgres",
-        "USER": "postgres",
-        "PASSWORD": "postgres",
-        "HOST": "192.168.99.100",
+        "NAME": "smarttraffic",
+        "USER": "smarttraffic",
+        "PASSWORD": "smarttraffic",
+        "HOST": "127.0.0.0",
         "PORT": "5432",
     }
 }
