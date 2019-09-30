@@ -17,7 +17,7 @@ class ParkingLot(models.Model):
 
     center = PointField()
 
-    geometry = GeometryField(blank=True, default=None)
+    geometry = GeometryField(blank=True, null=True, default=None)
 
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
