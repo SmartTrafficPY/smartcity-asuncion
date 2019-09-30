@@ -1,7 +1,7 @@
 from enum import Enum
 
 from django.conf import settings
-from django.contrib.gis.db.models import PointField, PolygonField
+from django.contrib.gis.db.models import GeometryField, PointField, PolygonField
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
@@ -17,7 +17,7 @@ class ParkingLot(models.Model):
 
     center = PointField()
 
-    gateway = PolygonField()
+    geometry = GeometryField(blank=True, default=None)
 
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
