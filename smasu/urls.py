@@ -34,6 +34,7 @@ entities_patterns = (
     "entities",
 )
 
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("health/", include("smhealth.urls")),
