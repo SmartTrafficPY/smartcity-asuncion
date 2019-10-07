@@ -90,7 +90,7 @@ DATABASES = {
         "NAME": "smarttraffic",
         "USER": "smarttraffic",
         "PASSWORD": "smarttraffic",
-        "HOST": "127.0.0.0",
+        "HOST": "127.0.0.1",
         "PORT": "5432",
     }
 }
