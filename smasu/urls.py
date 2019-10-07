@@ -34,6 +34,7 @@ entities_patterns = (
     "entities",
 )
 
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("health/", include("smhealth.urls")),
@@ -41,4 +42,5 @@ urlpatterns = [
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
     path("api/", include(router.urls)),
     path("api/smartparking/", include("spusers.urls")),
+    path("api/smartmoving/", include("smovusers.urls")),
 ]

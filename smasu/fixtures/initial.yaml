@@ -5,6 +5,13 @@
     created: "2019-09-10T21:51:47.641Z"
     modified: "2019-09-10T21:51:47.641Z"
 
+- model: smasu.application
+  pk: 2
+  fields:
+    name: smartmoving
+    created: "2019-09-10T21:51:47.641Z"
+    modified: "2019-09-10T21:51:47.641Z"
+
 - model: auth.permission
   pk: 33
   fields:
@@ -16,6 +23,13 @@
   pk: 1
   fields:
     name: smartparking apps
+    permissions:
+    - 33
+
+- model: auth.group
+  pk: 2
+  fields:
+    name: smartmoving apps
     permissions:
     - 33
 
@@ -34,6 +48,23 @@
     date_joined: "2019-08-31T11:41:19Z"
     groups:
     - 1
+    user_permissions: []
+
+- model: auth.user
+  pk: 9
+  fields:
+    password: ''
+    last_login: null
+    is_superuser: false
+    username: smartmoving0
+    first_name: ''
+    last_name: ''
+    email: ''
+    is_staff: false
+    is_active: true
+    date_joined: "2019-08-31T11:41:19Z"
+    groups:
+    - 2
     user_permissions: []
 
 - model: splots.parkinglot
