@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.gis.measure import D
 from django.db import transaction
@@ -8,8 +9,8 @@ from django.db.models import Q
 from django.utils import timezone
 from rest_framework import parsers, renderers, serializers, viewsets
 from rest_framework.authentication import SessionAuthentication
+from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
-from rest_framework.parsers import JSONParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from smasu.authentication import IsRetrieveView, IsSafeReadOnlyView, IsSuperUserOrStaff, TokenAuthenticationInQuery
@@ -60,7 +61,7 @@ class ParkingSpotView(viewsets.ModelViewSet):
     queryset = ParkingSpot.objects.all()
     authentication_classes = (SessionAuthentication, TokenAuthenticationInQuery)
     permission_classes = (IsSuperUserOrStaff | (IsRetrieveView & IsSmartParkingUser),)
-    parser_classes = (ParkingSpotGeoJSONParser, parsers.FormParser, JSONParser)
+    parser_classes = (ParkingSpotGeoJSONParser, parsers.FormParser)
     renderer_classes = [ParkingSpotGeoJSONRenderer, renderers.BrowsableAPIRenderer]
 
     def get_serializer_class(self):
@@ -77,15 +78,21 @@ class ParkingSpotView(viewsets.ModelViewSet):
         with transaction.atomic():
             try:
                 spot = ParkingSpot.objects.get(pk=pk)
-                app = Application.objects.get(pk=request.data.get("application_id"))
             except ParkingSpot.DoesNotExist:
+                return Response(status=404)
+
+            try:
+                user = Token.objects.get(key=request.data.get("token")).user
+            except User.DoesNotExist:
                 return Response(status=404)
 
             spot.state = ParkingSpot.STATE_OCCUPIED
             spot.save()
-            # Change to make it dinamic (app id)
+
             Event(
-                application=app,
+                application=Application.objects.get(pk=1)
+                if user.username == "smartparking0"
+                else Application.objects.get(pk=3),
                 e_type=as_entity(SmartParkingEventType.OCCUPY_SPOT),
                 agent=as_entity(request.user),
                 position=spot.polygon.centroid,
@@ -98,15 +105,21 @@ class ParkingSpotView(viewsets.ModelViewSet):
         with transaction.atomic():
             try:
                 spot = ParkingSpot.objects.get(pk=pk)
-                app = Application.objects.get(pk=request.data.get("application_id"))
             except ParkingSpot.DoesNotExist:
+                return Response(status=404)
+
+            try:
+                user = Token.objects.get(key=request.data.get("token")).user
+            except User.DoesNotExist:
                 return Response(status=404)
 
             spot.state = ParkingSpot.STATE_FREE
             spot.save()
             # Change to make it dinamic (app id)
             Event(
-                application=app,
+                application=Application.objects.get(pk=1)
+                if user.username == "smartparking0"
+                else Application.objects.get(pk=3),
                 e_type=as_entity(SmartParkingEventType.FREE_SPOT),
                 agent=as_entity(request.user),
                 position=spot.polygon.centroid,
