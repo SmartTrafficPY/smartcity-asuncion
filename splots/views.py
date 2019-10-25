@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.gis.measure import D
 from django.db import transaction
@@ -82,17 +81,19 @@ class ParkingSpotView(viewsets.ModelViewSet):
                 return Response(status=404)
 
             try:
-                user = Token.objects.get(key=request.data.get("token")).user
-            except User.DoesNotExist:
-                return Response(status=404)
+                app_token = Token.objects.get(key=request.data.get("app_token"))
+            except Token.DoesNotExist:
+                return Response(status=401)
+
+            app_user = app_token.user
+            if not app_user.groups.filter(name="smartparking apps").exists():
+                Response(status=401)
 
             spot.state = ParkingSpot.STATE_OCCUPIED
             spot.save()
 
             Event(
-                application=Application.objects.get(pk=1)
-                if user.username == "smartparking0"
-                else Application.objects.get(pk=3),
+                application=Application.objects.get(name=app_user.username),
                 e_type=as_entity(SmartParkingEventType.OCCUPY_SPOT),
                 agent=as_entity(request.user),
                 position=spot.polygon.centroid,
@@ -109,17 +110,19 @@ class ParkingSpotView(viewsets.ModelViewSet):
                 return Response(status=404)
 
             try:
-                user = Token.objects.get(key=request.data.get("token")).user
-            except User.DoesNotExist:
-                return Response(status=404)
+                app_token = Token.objects.get(key=request.data.get("app_token"))
+            except Token.DoesNotExist:
+                return Response(status=401)
+
+            app_user = app_token.user
+            if not app_user.groups.filter(name="smartparking apps").exists():
+                Response(status=401)
 
             spot.state = ParkingSpot.STATE_FREE
             spot.save()
-            # Change to make it dinamic (app id)
+
             Event(
-                application=Application.objects.get(pk=1)
-                if user.username == "smartparking0"
-                else Application.objects.get(pk=3),
+                application=Application.objects.get(name=app_user.username),
                 e_type=as_entity(SmartParkingEventType.FREE_SPOT),
                 agent=as_entity(request.user),
                 position=spot.polygon.centroid,
