@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.gis.measure import D
 from django.db import transaction
@@ -82,22 +81,23 @@ class ParkingSpotView(viewsets.ModelViewSet):
                 return Response(status=404)
 
             if request.data is None or request.data.get("app_token") is None:
-                app_token = Token.objects.get(user=User.objects.get(username="smartparking"))
+                app_intance = Application.objects.get(name="smartparking")
             else:
                 try:
                     app_token = Token.objects.get(key=request.data.get("app_token"))
+                    app_user = app_token.user
+                    if app_user.groups.filter(name="smartparking apps").exists():
+                        app_intance = Application.objects.get(name=app_user.username)
+                    else:
+                        Response(status=401)
                 except Token.DoesNotExist:
                     return Response(status=404)
-
-            app_user = app_token.user
-            if not app_user.groups.filter(name="smartparking apps").exists():
-                Response(status=401)
 
             spot.state = ParkingSpot.STATE_OCCUPIED
             spot.save()
 
             Event(
-                application=Application.objects.get(name=app_user.username),
+                application=app_intance,
                 e_type=as_entity(SmartParkingEventType.OCCUPY_SPOT),
                 agent=as_entity(request.user),
                 position=spot.polygon.centroid,
@@ -114,22 +114,23 @@ class ParkingSpotView(viewsets.ModelViewSet):
                 return Response(status=404)
 
             if request.data is None or request.data.get("app_token") is None:
-                app_token = Token.objects.get(user=User.objects.get(username="smartparking"))
+                app_intance = Application.objects.get(name="smartparking")
             else:
                 try:
                     app_token = Token.objects.get(key=request.data.get("app_token"))
+                    app_user = app_token.user
+                    if app_user.groups.filter(name="smartparking apps").exists():
+                        app_intance = Application.objects.get(name=app_user.username)
+                    else:
+                        Response(status=401)
                 except Token.DoesNotExist:
                     return Response(status=404)
-
-            app_user = app_token.user
-            if not app_user.groups.filter(name="smartparking apps").exists():
-                Response(status=401)
 
             spot.state = ParkingSpot.STATE_FREE
             spot.save()
 
             Event(
-                application=Application.objects.get(name=app_user.username),
+                application=app_intance,
                 e_type=as_entity(SmartParkingEventType.FREE_SPOT),
                 agent=as_entity(request.user),
                 position=spot.polygon.centroid,
