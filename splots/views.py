@@ -81,13 +81,13 @@ class ParkingSpotView(viewsets.ModelViewSet):
                 return Response(status=404)
 
             if request.data is None or request.data.get("app_token") is None:
-                app_intance = Application.objects.get(name="smartparking")
+                application = Application.objects.get(name="smartparking")
             else:
                 try:
                     app_token = Token.objects.get(key=request.data.get("app_token"))
                     app_user = app_token.user
                     if app_user.groups.filter(name="smartparking apps").exists():
-                        app_intance = Application.objects.get(name=app_user.username)
+                        application = Application.objects.get(name=app_user.username)
                     else:
                         Response(status=401)
                 except Token.DoesNotExist:
@@ -97,7 +97,7 @@ class ParkingSpotView(viewsets.ModelViewSet):
             spot.save()
 
             Event(
-                application=app_intance,
+                application=application,
                 e_type=as_entity(SmartParkingEventType.OCCUPY_SPOT),
                 agent=as_entity(request.user),
                 position=spot.polygon.centroid,
@@ -114,13 +114,13 @@ class ParkingSpotView(viewsets.ModelViewSet):
                 return Response(status=404)
 
             if request.data is None or request.data.get("app_token") is None:
-                app_intance = Application.objects.get(name="smartparking")
+                application = Application.objects.get(name="smartparking")
             else:
                 try:
                     app_token = Token.objects.get(key=request.data.get("app_token"))
                     app_user = app_token.user
                     if app_user.groups.filter(name="smartparking apps").exists():
-                        app_intance = Application.objects.get(name=app_user.username)
+                        application = Application.objects.get(name=app_user.username)
                     else:
                         Response(status=401)
                 except Token.DoesNotExist:
@@ -130,7 +130,7 @@ class ParkingSpotView(viewsets.ModelViewSet):
             spot.save()
 
             Event(
-                application=app_intance,
+                application=application,
                 e_type=as_entity(SmartParkingEventType.FREE_SPOT),
                 agent=as_entity(request.user),
                 position=spot.polygon.centroid,
