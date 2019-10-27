@@ -81,10 +81,13 @@ class ParkingSpotView(viewsets.ModelViewSet):
             except ParkingSpot.DoesNotExist:
                 return Response(status=404)
 
-            try:
-                app_token = Token.objects.get(key=request.data.get("app_token"))
-            except Token.DoesNotExist:
+            if request.data.get("app_token") is None:
                 app_token = Token.objects.get(user=User.objects.get(username="smartparking"))
+            else:
+                try:
+                    app_token = Token.objects.get(key=request.data.get("app_token"))
+                except Token.DoesNotExist:
+                    return Response(status=404)
 
             app_user = app_token.user
             if not app_user.groups.filter(name="smartparking apps").exists():
@@ -110,10 +113,13 @@ class ParkingSpotView(viewsets.ModelViewSet):
             except ParkingSpot.DoesNotExist:
                 return Response(status=404)
 
-            try:
-                app_token = Token.objects.get(key=request.data.get("app_token"))
-            except Token.DoesNotExist:
+            if request.data.get("app_token") is None:
                 app_token = Token.objects.get(user=User.objects.get(username="smartparking"))
+            else:
+                try:
+                    app_token = Token.objects.get(key=request.data.get("app_token"))
+                except Token.DoesNotExist:
+                    return Response(status=404)
 
             app_user = app_token.user
             if not app_user.groups.filter(name="smartparking apps").exists():
