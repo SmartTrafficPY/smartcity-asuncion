@@ -81,7 +81,7 @@ class ParkingSpotView(viewsets.ModelViewSet):
             except ParkingSpot.DoesNotExist:
                 return Response(status=404)
 
-            if request.data.get("app_token") is None:
+            if request.data is None or request.data.get("app_token") is None:
                 app_token = Token.objects.get(user=User.objects.get(username="smartparking"))
             else:
                 try:
@@ -113,7 +113,7 @@ class ParkingSpotView(viewsets.ModelViewSet):
             except ParkingSpot.DoesNotExist:
                 return Response(status=404)
 
-            if request.data.get("app_token") is None:
+            if request.data is None or request.data.get("app_token") is None:
                 app_token = Token.objects.get(user=User.objects.get(username="smartparking"))
             else:
                 try:
