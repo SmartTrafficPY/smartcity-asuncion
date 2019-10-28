@@ -6,7 +6,7 @@ from django.contrib.gis.measure import D
 from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
-from rest_framework import parsers, renderers, serializers, viewsets
+from rest_framework import exceptions, parsers, renderers, serializers, viewsets
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
@@ -72,26 +72,35 @@ class ParkingSpotView(viewsets.ModelViewSet):
 
         return ParkingSpotSerializer
 
+    @staticmethod
+    def _get_application(payload):
+        if payload is None:
+            return Application.objects.get(name="smartparking")
+
+        app_token = payload.get("app_token")
+        if app_token is None:
+            return Application.objects.get(name="smartparking")
+            # raise exceptions.ValidationError("app_token missing")
+
+        try:
+            app_user = Token.objects.get(key=app_token).user
+        except Token.DoesNotExist:
+            raise exceptions.PermissionDenied()
+
+        if not app_user.groups.filter(name="smartparking apps").exists():
+            raise exceptions.PermissionDenied()
+
+        return Application.objects.get(name=app_user.username)
+
     @action(methods=["post"], detail=True, permission_classes=(IsSuperUserOrStaff | IsSmartParkingUser,))
     def set(self, request, pk, format=None):
+        application = self._get_application(request.data)
+
         with transaction.atomic():
             try:
                 spot = ParkingSpot.objects.get(pk=pk)
             except ParkingSpot.DoesNotExist:
-                return Response(status=404)
-
-            if request.data is None or request.data.get("app_token") is None:
-                application = Application.objects.get(name="smartparking")
-            else:
-                try:
-                    app_token = Token.objects.get(key=request.data.get("app_token"))
-                    app_user = app_token.user
-                    if app_user.groups.filter(name="smartparking apps").exists():
-                        application = Application.objects.get(name=app_user.username)
-                    else:
-                        Response(status=401)
-                except Token.DoesNotExist:
-                    return Response(status=404)
+                raise exceptions.NotFound("parking spot not found")
 
             spot.state = ParkingSpot.STATE_OCCUPIED
             spot.save()
@@ -107,24 +116,13 @@ class ParkingSpotView(viewsets.ModelViewSet):
 
     @action(methods=["post"], detail=True, permission_classes=(IsSuperUserOrStaff | IsSmartParkingUser,))
     def reset(self, request, pk, format=None):
+        application = self._get_application(request.data)
+
         with transaction.atomic():
             try:
                 spot = ParkingSpot.objects.get(pk=pk)
             except ParkingSpot.DoesNotExist:
-                return Response(status=404)
-
-            if request.data is None or request.data.get("app_token") is None:
-                application = Application.objects.get(name="smartparking")
-            else:
-                try:
-                    app_token = Token.objects.get(key=request.data.get("app_token"))
-                    app_user = app_token.user
-                    if app_user.groups.filter(name="smartparking apps").exists():
-                        application = Application.objects.get(name=app_user.username)
-                    else:
-                        Response(status=401)
-                except Token.DoesNotExist:
-                    return Response(status=404)
+                return exceptions.NotFound("parking spot not found")
 
             spot.state = ParkingSpot.STATE_FREE
             spot.save()
