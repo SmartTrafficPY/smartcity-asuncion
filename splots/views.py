@@ -6,8 +6,9 @@ from django.contrib.gis.measure import D
 from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
-from rest_framework import parsers, renderers, serializers, viewsets
+from rest_framework import exceptions, parsers, renderers, serializers, viewsets
 from rest_framework.authentication import SessionAuthentication
+from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -18,7 +19,6 @@ from smasu.parsers import NearbyGeoJSONParser
 from smasu.renderers import NearbyGeoJSONRenderer
 from smevents.models import Event
 
-from .helpers import SmartParkingCacheHelper
 from .models import ParkingLot, ParkingSpot, SmartParkingEventType
 from .parsers import ParkingLotGeoJSONParser, ParkingSpotGeoJSONParser
 from .renderers import ParkingLotGeoJSONRenderer, ParkingSpotGeoJSONRenderer
@@ -72,19 +72,41 @@ class ParkingSpotView(viewsets.ModelViewSet):
 
         return ParkingSpotSerializer
 
+    @staticmethod
+    def _get_application(payload):
+        if payload is None:
+            return Application.objects.get(name="smartparking")
+
+        app_token = payload.get("app_token")
+        if app_token is None:
+            return Application.objects.get(name="smartparking")
+            # raise exceptions.ValidationError("app_token missing")
+
+        try:
+            app_user = Token.objects.get(key=app_token).user
+        except Token.DoesNotExist:
+            raise exceptions.PermissionDenied()
+
+        if not app_user.groups.filter(name="smartparking apps").exists():
+            raise exceptions.PermissionDenied()
+
+        return Application.objects.get(name=app_user.username)
+
     @action(methods=["post"], detail=True, permission_classes=(IsSuperUserOrStaff | IsSmartParkingUser,))
     def set(self, request, pk, format=None):
+        application = self._get_application(request.data)
+
         with transaction.atomic():
             try:
                 spot = ParkingSpot.objects.get(pk=pk)
             except ParkingSpot.DoesNotExist:
-                return Response(status=404)
+                raise exceptions.NotFound("parking spot not found")
 
             spot.state = ParkingSpot.STATE_OCCUPIED
             spot.save()
 
             Event(
-                application=SmartParkingCacheHelper.get_object("application", Application, {"name": "smartparking"}),
+                application=application,
                 e_type=as_entity(SmartParkingEventType.OCCUPY_SPOT),
                 agent=as_entity(request.user),
                 position=spot.polygon.centroid,
@@ -94,17 +116,19 @@ class ParkingSpotView(viewsets.ModelViewSet):
 
     @action(methods=["post"], detail=True, permission_classes=(IsSuperUserOrStaff | IsSmartParkingUser,))
     def reset(self, request, pk, format=None):
+        application = self._get_application(request.data)
+
         with transaction.atomic():
             try:
                 spot = ParkingSpot.objects.get(pk=pk)
             except ParkingSpot.DoesNotExist:
-                return Response(status=404)
+                return exceptions.NotFound("parking spot not found")
 
             spot.state = ParkingSpot.STATE_FREE
             spot.save()
 
             Event(
-                application=SmartParkingCacheHelper.get_object("application", Application, {"name": "smartparking"}),
+                application=application,
                 e_type=as_entity(SmartParkingEventType.FREE_SPOT),
                 agent=as_entity(request.user),
                 position=spot.polygon.centroid,
