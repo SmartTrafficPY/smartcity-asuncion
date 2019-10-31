@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "spusers",
     "splots",
     "smovusers",
+    "smreports",
     "rest_framework",
     "rest_framework.authtoken",
 ]
@@ -98,6 +99,7 @@ DATABASES = {
 CACHES = {
     "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache", "TIMEOUT": 60},
     "smartparking": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache", "TIMEOUT": 60},
+    "smartmoving": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache", "TIMEOUT": 60},
 }
 
 # Password validation

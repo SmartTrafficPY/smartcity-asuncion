@@ -58,7 +58,7 @@ class UserSerializer(serializers.ModelSerializer):
                 if profile:
                     profile.birth_date = profile_data.get("birth_date", profile.birth_date)
                     profile.sex = profile_data.get("sex", profile.sex)
-                    profile.type_movement = profile_data.get("type_movement", profile.movement_type)
+                    profile.movement_type = profile_data.get("movement_type", profile.movement_type)
                     profile.save()
 
                 else:
