@@ -93,7 +93,7 @@ You must uninstall psycopg2 and then install psycopg2-binary
 pipenv uninstall psycopg2
 pipenv install  psycopg2-binary
 ```
-And then try again `pipenv isntall --dev`
+And then try again `pipenv install --dev`
 
 Then we need to export some variables for pipenv
 
