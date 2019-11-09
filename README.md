@@ -81,7 +81,7 @@ $pip install -U pip
 $pip install pipenv
 $pipenv install --dev
 ```
-if you had a problem with psycopg2 while executing `pipenv isntall --dev` having this similar output error:
+if you had a problem with psycopg2 while executing `pipenv install --dev` having this similar output error:
 
 ```
 Installing dependencies from Pipfile.lock (0159e3)…
