@@ -54,19 +54,22 @@ $ psql --version
 
 ### Anyenv
 
-Install this tool, [anyenv](https://github.com/anyenv/anyenv) to have a really develop environment.
+Install this tool, [anyenv](https://github.com/anyenv/anyenv) to have a develop environment.
 Make sure that even you close your current console, anyenv persist.
 
-### Python environment
+### Developer environment
 
-Now the Linux users can join us, use your WSL if you are Windows user, we need to prepare a develop environment for 
-the server to execute.
+Now the Linux users can join us, use your WSL if you are Windows user, we need to prepare a develop environment for the server to execute.
 
-First install some packages pyenv will need to build, compile the commands we need to run after, so:
+Install some packages that we will need later:
 
 ```
-sudo apt-get update; sudo apt-get install --no-install-recommends make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
+sudo apt-get update
 ```
+```
+sudo apt-get install make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev binutils libproj-dev gdal-bin
+```
+
 Clone the repository:
 ```
 git clone https://github.com/SmartTrafficPY/smartcity-asuncion.git
@@ -75,12 +78,26 @@ Go to directory of the repository and then, we can install python version 3.7.2 
 ```
 cd .../smartcity-asuncion
 ```
+
+### Python environment
+
+Create a python 3.7.2 environment with:
+
 ```
 $ pyenv install 3.7.2
-$pip install -U pip
-$pip install pipenv
-$pipenv install --dev
+$ pip install -U pip
 ```
+
+Install pipenv:
+```
+$ pip install pipenv
+```
+Install the dependencies stated in the pipfile:
+```
+$ pipenv install --dev
+```
+
+
 if you had a problem with psycopg2 while executing `pipenv install --dev` having this similar output error:
 
 ```
