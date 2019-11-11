@@ -1,0 +1,35 @@
+[
+{
+  "model": "ucusers.person",
+  "pk": 1,
+  "fields": {
+    "personId": "45h67f80ds",
+    "personalityTraits": [
+      1,
+      4
+    ]
+  }
+},
+{
+  "model": "ucusers.person",
+  "pk": 2,
+  "fields": {
+    "personId": "fjbmbldif",
+    "personalityTraits": [
+      2,
+      3
+    ]
+  }
+},
+{
+  "model": "ucusers.person",
+  "pk": 3,
+  "fields": {
+    "personId": "mhkfidsp",
+    "personalityTraits": [
+      1,
+      4
+    ]
+  }
+}
+]

@@ -1,0 +1,34 @@
+[
+  {
+    "model": "ucusers.personalitytraittype",
+    "pk": 1,
+    "fields": {
+      "personalityTraitType": "Sexo",
+      "weight": 1.01
+    }
+  },
+  {
+    "model": "ucusers.personalitytraittype",
+    "pk": 2,
+    "fields": {
+      "personalityTraitType": "Fumador",
+      "weight": 1.01
+    }
+  },
+  {
+    "model": "ucusers.personalitytraittype",
+    "pk": 3,
+    "fields": {
+      "personalityTraitType": "Nivel de elocuencia",
+      "weight": 1.01
+    }
+  },
+  {
+    "model": "ucusers.personalitytraittype",
+    "pk": 4,
+    "fields": {
+      "personalityTraitType": "Gusto musical",
+      "weight": 1.01
+    }
+  }
+]

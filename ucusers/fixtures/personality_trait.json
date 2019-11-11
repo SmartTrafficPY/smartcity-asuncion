@@ -1,0 +1,66 @@
+[
+    {
+      "model": "ucusers.personalitytrait",
+      "pk": 1,
+      "fields": {
+        "personalityTraitType": 1,
+        "personalityTraitValue": "Masculino"
+      }
+    },
+    {
+      "model": "ucusers.personalitytrait",
+      "pk": 2,
+      "fields": {
+        "personalityTraitType": 1,
+        "personalityTraitValue": "Femenino"
+      }
+    },
+    {
+      "model": "ucusers.personalitytrait",
+      "pk": 3,
+      "fields": {
+        "personalityTraitType": 2,
+        "personalityTraitValue": "Si"
+      }
+    },
+    {
+      "model": "ucusers.personalitytrait",
+      "pk": 4,
+      "fields": {
+        "personalityTraitType": 2,
+        "personalityTraitValue": "No"
+      }
+    },
+    {
+      "model": "ucusers.personalitytrait",
+      "pk": 5,
+      "fields": {
+        "personalityTraitType": 3,
+        "personalityTraitValue": "Introvertido"
+      }
+    },
+    {
+      "model": "ucusers.personalitytrait",
+      "pk": 6,
+      "fields": {
+        "personalityTraitType": 3,
+        "personalityTraitValue": "Medio"
+      }
+    },
+    {
+      "model": "ucusers.personalitytrait",
+      "pk": 7,
+      "fields": {
+        "personalityTraitType": 3,
+        "personalityTraitValue": "Extrovertido"
+      }
+    },
+    {
+      "model": "ucusers.personalitytrait",
+      "pk": 8,
+      "fields": {
+        "personalityTraitType": 4,
+        "personalityTraitValue": "Electronica"
+      }
+    }
+  ]
