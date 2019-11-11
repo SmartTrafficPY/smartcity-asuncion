@@ -128,18 +128,6 @@ Build the container:
 $ docker-compose build
 ```
 
-The project provides a script for restarting, after make any changes, and building one service that is introduce as a parameter:
-```
-./ compose-build.sh NAME_SERVICE
-```
-This execute:
-```
-docker-compose down
-docker-compose build
-...
-docker-compose up NAME_SERVICE
-```
-
 Restart the service:
 ```
 $ docker-compose down
