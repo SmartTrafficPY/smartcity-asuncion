@@ -9,6 +9,7 @@ flake8 = "*"
 black = "*"
 isort = "*"
 pdbpp = "*"
+pylint = "*"
 
 [packages]
 django = "<2.3,>=2.2.4"

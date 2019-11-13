@@ -1,5 +1,5 @@
 from django.test import TestCase
-from ucusers.models import PersonalityTraitType, PersonalityTrait, Person
+from ucusers.models import PersonalityTraitType, PersonalityTrait
 
 # Create your tests here.
 
@@ -35,6 +35,7 @@ class ModelTests(TestCase):
 
         self.assertEqual(var_personality_trait.personalityTraitType, var_personality_trait_type)
         self.assertEqual(var_personality_trait.personalityTraitValue, 'Olimpia')
+
 
 '''
     def test_create_person_successful(self):

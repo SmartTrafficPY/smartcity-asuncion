@@ -1,9 +1,13 @@
+"""
+This module contains all the models representing the human-profile aspects of Ucarpooling system
+"""
 from django.db import models
 
+
 class PersonalityTraitType(models.Model):
-    """ 
-    Types of personality traits with the according weight while carpooling. 
-    For example: 
+    """
+    Types of personality traits with the according weight while carpooling.
+    For example:
     - Sex
     - Is a smoker
     - Eloquence level
@@ -16,8 +20,9 @@ class PersonalityTraitType(models.Model):
     def __str__(self):
         return f"{self.personalityTraitType}"
 
+
 class PersonalityTrait(models.Model):
-    """ 
+    """
     Value of a specific personality trait.
     For example:
     - Sex -> M
@@ -30,14 +35,16 @@ class PersonalityTrait(models.Model):
     "To avoid repeated rows, the combination of personalityTraitType & personalityTraitValue is unique."
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['personalityTraitType', 'personalityTraitValue'], name='unique_personality_and_value'),
+            models.UniqueConstraint(fields=['personalityTraitType', 'personalityTraitValue'],
+                                    name='unique_personality_and_value'),
         ]
 
     def __str__(self):
         return f"{self.personalityTraitValue}({self.personalityTraitType})"
 
+
 class Person(models.Model):
-    """ 
+    """
     Representation of a study subject.
     """
 
