@@ -1,0 +1,38 @@
+[
+{
+  "model": "ucschedule.personitinerary",
+  "pk": 1,
+  "fields": {
+    "timeOfDeparture": "2019-11-13T17:18:15Z",
+    "timeOfArrival": null,
+    "origin": "SRID=4326;POINT (-0.0174782535759732 0.02212091061278921)",
+    "destination": "SRID=4326;POINT (0.01061178802046925 0.0074809323783676)",
+    "person": 2,
+    "isDriver": true
+  }
+},
+{
+  "model": "ucschedule.personitinerary",
+  "pk": 2,
+  "fields": {
+    "timeOfDeparture": null,
+    "timeOfArrival": "2019-11-13T18:29:43Z",
+    "origin": "SRID=4326;POINT (-0.0003121158806607021 0.02118457351506151)",
+    "destination": "SRID=4326;POINT (-0.0009363371646031741 0.02464704838003005)",
+    "person": 4,
+    "isDriver": true
+  }
+},
+{
+  "model": "ucschedule.personitinerary",
+  "pk": 3,
+  "fields": {
+    "timeOfDeparture": null,
+    "timeOfArrival": "2019-11-02T06:00:00Z",
+    "origin": "SRID=4326;POINT (0.01466923684347421 -0.01252347738988513)",
+    "destination": "SRID=4326;POINT (-0.02590526186395435 0.01403526621803745)",
+    "person": 3,
+    "isDriver": false
+  }
+}
+]
