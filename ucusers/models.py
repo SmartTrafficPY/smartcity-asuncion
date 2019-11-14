@@ -40,7 +40,7 @@ class PersonalityTrait(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.personalityTraitValue}({self.personalityTraitType})"
+        return f"({self.personalityTraitType}) - {self.personalityTraitValue}"
 
 
 class Person(models.Model):
