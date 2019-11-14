@@ -124,6 +124,13 @@ $ docker-compose down
 $ docker-compose up 
 ```
 
+If it is the first time running the project, you'll need to create the database.
+The database is created with:
+
+```
+python manage.py createdb
+```
+
 You'll find the app is running on http://127.0.0.1:8000
 or in the docker VM if you are running in docker toolbox, that you may known with the following command
 
