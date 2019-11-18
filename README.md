@@ -3,120 +3,108 @@ La plataforma del servidor del proyecto SmartTraffic
 
 ## REQUIREMENTS
 
-You need to install this to have fun with our project.
-
 ### docker & docker-compose
-Docker: 18.03 +
-Docker Compose: 1.13.0 +
-Check that you have the correct docker version, with docker compose too,
-if you have linux OS, you have to do it separately:
+Docker: 18.03 + (see https://docs.docker.com/install/)
+Docker Compose: 1.13.0 + (see https://docs.docker.com/compose/install/)
+
+### WSL
+Using WSL? Get it to play nicely with docker. See https://nickjanetakis.com/blog/setting-up-docker-for-windows-and-wsl-to-work-flawlessly.
+Using Docker Toolbox? You might need to look here:
+https://gist.github.com/strarsis/44ded0d254066d9cb125ebbb04650d6c to set it up.
+
+### Optional: Postgresql
+The psql utility will come in handy if you need to inspect the database. Install it on your environment:
 
 ```
-$ docker --version
-Docker version 18.03.0-ce, build 0429c243o2
-$ docker-compose --version
-docker-compose version 1.20.1, build 0429c243o2
+sudo apt-get install -y postgresql-client-10
 ```
 
-If not installed yet, follow the official guide in https://docs.docker.com/install/ and docker-compose here: https://docs.docker.com/compose/install/
+### Python environment
+Install `pyenv` (maybe through [anyenv](https://github.com/anyenv/anyenv)) and [pyenv-virtualenv](https://github.com/pyenv/pyenv-virtualenv) for a flexible python development environment.
 
-### Windows Users only
-
-If you are a Linux users, you are good to go, if you are a windows user, im sorry mate, but you need to follow 
-the next steps and guides for preparing the deployment.
-
-Set docker for using WSL, following the next guide:
-https://nickjanetakis.com/blog/setting-up-docker-for-windows-and-wsl-to-work-flawlessly
-
-If you are using Docker Toolbox, because of your Windows build version, you might need to look 
-https://gist.github.com/strarsis/44ded0d254066d9cb125ebbb04650d6c for set docker right.
-
-We have already set docker in our WSL, so next we need to make our dev environment properly for our platform.
-Windows users for now on, you will work in your new Ubuntu WSL console.
-
-### Python
-
-You need to have install python, check it by using:
-
-```
-$ python -V
-```
-If you have not python, follow the next [guide](https://tecadmin.net/install-python-2-7-on-ubuntu-and-linuxmint/)
-
-### Postgresql
-
-Make sure you have postgres 10 with:
-
-```
-$ sudo apt-get install -y postgresql-client-10
-$ psql --version  
-```
-
-### Anyenv
-
-Install this tool, [anyenv](https://github.com/anyenv/anyenv) to have a develop environment.
-Make sure that even you close your current console, anyenv persist.
-
-### Developer environment
-
-Now the Linux users can join us, use your WSL if you are Windows user, we need to prepare a develop environment for the server to execute.
-
-Install some packages that we will need later:
-
-```
-sudo apt-get update
-```
-```
-sudo apt-get install make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev binutils libproj-dev gdal-bin
-```
-
+## Installation
 Clone the repository:
 ```
 git clone https://github.com/SmartTrafficPY/smartcity-asuncion.git
 ```
-Go to directory of the repository and then, we can install python version 3.7.2 and pip with:
-```
-cd .../smartcity-asuncion
-```
 
-### Python environment
-
-Create a python 3.7.2 environment with:
+### Python version and the virtual environment
+Install and select the python version specified in `.python-version` (v3.7.2)
 
 ```
-$ pyenv install 3.7.2
-$ pip install -U pip
+pyenv install 3.7.2
+pyenv local 3.7.2
+pip install -U pip
 ```
 
 Install pipenv:
 ```
-$ pip install pipenv
-```
-Install the dependencies stated in the pipfile:
-```
-$ pipenv install --dev
+pip install pipenv
 ```
 
-And now you can enter pipenv shell 
+Let pipenv create a virtual environment and install all the required dependencies:
+```
+pipenv install --dev
+```
+
+Activate your virtual environment: 
 
 ```
 pipenv shell
 ```
-In pipenv shell execute
 
+### Keeping a congruent code style
+Install pre-commit hooks to lint and uniformise code style:
 ```
 pre-commit install
 ```
-The last one is optional, but will help you, not letting you commit horrible code.
+
+### First time tasks
+Fire up the companion services:
+```
+docker-compose up
+```
+It'll take some time for postgres to create the admin database and start listening on port 5432.
+
+Create the database:
+```
+python manage createdb
+```
+
+Create the table needed for caching:
+```
+python manage.py createcachetable
+```
+
+Create all the other tables:
+```
+python manage.py migrate
+```
+
+Populate your tables with development fixtures:
+```
+python manage.py loaddata initial
+```
+
+Create an admin user:
+```
+python manage.py createsuperuser
+```
+
+### Running the service
+With the virtual environment active, you can start the service:
+```
+python manage.py runserver 8000
+```
+If your browser runs on another node, you may need to do a `python manage.py runserver 0.0.0.0:8000` instead, so it binds to all interfaces.
 
 ## Deployment
 
-Make sure you have the requirements versions of the session before continue with this README.
-
-Build the container:
+Building a new image:
 ```
-$ docker-compose build
+$ scripts/build-docker <TAG>
 ```
+Use YYYYMMDD or YYYYMMDD.HHMM to tag production releases. Omit `<TAG>` for staging builds (it will default to `test`). 
 
 Restart the service:
 ```
@@ -124,12 +112,20 @@ $ docker-compose down
 $ docker-compose up 
 ```
 
-If it is the first time running the project, you'll need to create the database.
-The database is created with:
+deploy
+define postgres.env and smartcity.env
 
-```
-python manage.py createdb
-```
+docker-compose run smartcity python manage.py createdb
+docker-compose run smartcity python manage.py migrate
+docker-compose run smartcity python manage.py loaddata initial
+docker-compose run smartcity python manage.py createsuperuser
+
+
+docker-compose run smartcity python manage.py migrate
+docker-compose run smartcity /build-staticfiles.sh
+
+loading spots
+cat spots.geojson | docker-compose run smartcity python manage.py loadspots 1
 
 You'll find the app is running on http://127.0.0.1:8000
 or in the docker VM if you are running in docker toolbox, that you may known with the following command
@@ -215,21 +211,3 @@ Other thing that might be useful is restarting docker, that may solve some troub
 ```
 $ docker-machine restart
 ```
-
-
-
-
-deploy
-define postgres.env and smartcity.env
-
-docker-compose run smartcity python manage.py createdb
-docker-compose run smartcity python manage.py migrate
-docker-compose run smartcity python manage.py loaddata initial
-docker-compose run smartcity python manage.py createsuperuser
-
-
-docker-compose run smartcity python manage.py migrate
-docker-compose run smartcity /build-staticfiles.sh
-
-loading spots
-cat spots.geojson | docker-compose run smartcity python manage.py loadspots 1
