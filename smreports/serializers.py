@@ -1,36 +1,36 @@
 from django.db import transaction
 from rest_framework import serializers
 
-from .models import Contribution, ReportPoi
+from .models import Report, StatusUpdate
 
 
-class ReportPoiSerializer(serializers.ModelSerializer):
+class ReportSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ReportPoi
-        fields = ("url", "user_created", "report_type", "modified", "status", "coordinates_poi")
+        model = Report
+        fields = ("url", "user_created", "report_type", "modified", "status", "coordinates")
 
     def create(self, validated_data):
 
         with transaction.atomic():
 
-            instance = ReportPoi.objects.create(**validated_data)
+            instance = Report.objects.create(**validated_data)
 
-        instance = ReportPoi.objects.get(pk=instance.pk)
+        instance = Report.objects.get(pk=instance.pk)
         return instance
 
 
-class ContributionSerializer(serializers.ModelSerializer):
+class StatusUpdateSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Contribution
-        fields = ("url", "reportpoi", "user", "value", "created")
+        model = StatusUpdate
+        fields = ("url", "reportid", "user", "value", "created")
 
     def create(self, validated_data):
 
         with transaction.atomic():
 
-            instance = Contribution.objects.create(**validated_data)
-            reportpoid = instance.reportpoi
+            instance = StatusUpdate.objects.create(**validated_data)
+            reportpoid = instance.reportid
             reportpoid.modified = instance.created
             reportpoid.save()
 
-        return reportpoid.status
+        return instance

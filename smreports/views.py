@@ -10,10 +10,10 @@ from smasu.helpers import as_entity
 from smasu.models import Application
 from smevents.models import Event
 
-from .models import Contribution, ReportPoi, SmartMovingEventType
+from .models import Report, SmartMovingEventType, StatusUpdate
 from .parsers import ReportPoiGeoJSONParser
 from .renderers import ReportPoiGeoJSONRenderer
-from .serializers import ContributionSerializer, ReportPoiSerializer
+from .serializers import ReportSerializer, StatusUpdateSerializer
 
 
 class IsSmartMovingUser(IsAuthenticated):
@@ -21,15 +21,15 @@ class IsSmartMovingUser(IsAuthenticated):
         return super().has_permission(request, view) and request.user.smartmovingprofile is not None
 
 
-class ReportsPoiView(viewsets.ModelViewSet):
-    queryset = ReportPoi.objects.all()
+class PoiReportView(viewsets.ModelViewSet):
+    queryset = Report.objects.all()
     authentication_classes = (SessionAuthentication, TokenAuthenticationInQuery)
-    permission_classes = (IsSuperUserOrStaff | (IsCreateView & IsSmartMovingUser),)
+    permission_classes = (IsSuperUserOrStaff | ((IsCreateView | IsListView) & IsSmartMovingUser),)
     parser_classes = (ReportPoiGeoJSONParser, parsers.FormParser)
-    serializer_class = ReportPoiSerializer
+    serializer_class = ReportSerializer
     renderer_classes = [ReportPoiGeoJSONRenderer, renderers.BrowsableAPIRenderer]
 
-    @receiver(post_save, sender=ReportPoi)
+    @receiver(post_save, sender=Report)
     def create_event_report(sender, instance, **kwargs):
         with transaction.atomic():
             if kwargs.get("created", False):
@@ -37,26 +37,45 @@ class ReportsPoiView(viewsets.ModelViewSet):
                     application=Application.objects.get(name="SmartMovingApp"),
                     e_type=as_entity(SmartMovingEventType.CREATED_REPORT_POI),
                     agent=as_entity(instance.user_created),
-                    position=instance.coordinates_poi,
+                    position=instance.coordinates,
                 ).save()
         return Response(status=200)
 
 
-class ContributionReportPoiView(viewsets.ModelViewSet):
-    queryset = Contribution.objects.order_by("reportpoi")
+class StatusUpdatePoiView(viewsets.ModelViewSet):
+    queryset = StatusUpdate.objects.all()
     authentication_classes = (SessionAuthentication, TokenAuthenticationInQuery)
-    permission_classes = IsSuperUserOrStaff | ((IsCreateView | IsListView) & IsSmartMovingUser,)
-    serializer_class = ContributionSerializer
+    permission_classes = (IsSuperUserOrStaff | ((IsCreateView | IsListView) & IsSmartMovingUser),)
+    serializer_class = StatusUpdateSerializer
 
-    @receiver(post_save, sender=Contribution)
+    @receiver(post_save, sender=StatusUpdate)
     def create_event(sender, instance, **kwargs):
+
+        count_true = 0
+        count_false = 0
 
         with transaction.atomic():
             if kwargs.get("created", False):
+
+                report = instance.reportid
+                count_true = StatusUpdate.objects.filter(value=True, reportid=report).count()
+                count_false = StatusUpdate.objects.filter(value=False, reportid=report).count()
+
+                if count_true >= 0 and count_true < 3 and count_false >= 0 and count_false < 3:
+                    report.status = Report.STATE_UNKNOWN
+                elif count_false > 0 and count_false < 3 and count_true >= 3:
+                    report.status = Report.STATE_UNKNOWN
+                elif count_false == 3 and count_true >= 0:
+                    report.status = Report.STATE_RESOLVED
+                if count_true >= 3 and count_false == 0:
+                    report.status = Report.STATE_CONFIRMED
+                report.modified = instance.created
+                report.save()
+
                 Event(
                     application=Application.objects.get(name="SmartMovingApp"),
                     e_type=as_entity(SmartMovingEventType.MODIFIED_REPORT_POI),
                     agent=as_entity(instance.user),
-                    position=instance.reportpoi.coordinates_poi,
+                    position=instance.reportid.coordinates,
                 ).save()
         return Response(status=200)

@@ -2,4 +2,4 @@ from smasu.renderers import GeoJSONRenderer
 
 
 class ReportPoiGeoJSONRenderer(GeoJSONRenderer):
-    geometry_field = "coordinates_poi"
+    geometry_field = "coordinates"
