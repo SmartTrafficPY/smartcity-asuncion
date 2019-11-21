@@ -1,15 +1,18 @@
 from django.contrib import admin
 from smasu.admin import SmartTrafficOSMGeoAdmin
-from .models import ReportPoi, ReportType, Contribution
+
+from .models import Report, ReportType, StatusUpdate
 
 # Register your models here.
 
-admin.site.register(ReportPoi, SmartTrafficOSMGeoAdmin)
+admin.site.register(Report, SmartTrafficOSMGeoAdmin)
 
 
 admin.site.register(ReportType, SmartTrafficOSMGeoAdmin)
 
-class SmartMovingContribution(admin.ModelAdmin):
+
+class SmartMovingStatusUpdate(admin.ModelAdmin):
     pass
 
-admin.site.register(Contribution, SmartMovingContribution)
+
+admin.site.register(StatusUpdate, SmartMovingStatusUpdate)

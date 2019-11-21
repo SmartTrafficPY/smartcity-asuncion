@@ -1,46 +1,32 @@
-from rest_framework import serializers
 from django.db import transaction
-from django.contrib.auth.models import User
-from django.utils import timezone
-from smevents.models import Event
+from rest_framework import serializers
 
-from .parsers import ReportPoiGeoJSONParser
-from .renderers import ReportPoiGeoJSONRenderer
-from .helpers import SmartMovingCacheHelper
-from smasu.helpers import as_entity
-from smasu.models import Application
-from .models import ReportPoi, ReportType, Contribution, SmartMovingEventType
+from .models import Report, StatusUpdate
 
 
-
-class ReportPoiSerializer(serializers.ModelSerializer):
-    
+class ReportSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ReportPoi
-        fields = ("url", "pk", "user_created","report_type", "coordinates_poi", "modified" )
-    
+        model = Report
+        fields = ("url", "user_created", "report_type", "status", "modified", "coordinates")
+
     def create(self, validated_data):
 
         with transaction.atomic():
 
-            instance = ReportPoi.objects.create(**validated_data)
-        
-        instance = ReportPoi.objects.get(pk=instance.pk)
+            instance = Report.objects.create(**validated_data)
+
+        instance = Report.objects.get(pk=instance.pk)
         return instance
 
-class ContributionSerializer(serializers.ModelSerializer):
-    
 
+class StatusUpdateSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Contribution
-        fields = ("pk","reportpoi","user","value","created")
-    
+        model = StatusUpdate
+        fields = ("pk", "reportid", "user", "value", "created")
+
     def create(self, validated_data):
 
         with transaction.atomic():
-            
-            instance = Contribution.objects.create(**validated_data)
-            reportpoid = instance.reportpoi
-            reportpoid.modified = instance.created
-            reportpoid.save()        
+
+            instance = StatusUpdate.objects.create(**validated_data)
         return instance

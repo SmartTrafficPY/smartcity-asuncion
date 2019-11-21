@@ -5,4 +5,4 @@ from .renderers import ReportPoiGeoJSONRenderer
 
 class ReportPoiGeoJSONParser(GeoJSONParser):
     renderer_class = ReportPoiGeoJSONRenderer
-    geometry_key = "coordinates_poi"
+    geometry_key = "coordinates"
