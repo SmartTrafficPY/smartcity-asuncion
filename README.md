@@ -68,7 +68,7 @@ It'll take some time for postgres to create the admin database and start listeni
 
 Create the database:
 ```
-python manage createdb
+python manage.py createdb
 ```
 
 Create the table needed for caching:
