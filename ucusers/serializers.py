@@ -13,7 +13,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    UcarpoolingProfile = ProfileSerializer(required=False)
+    ucarpoolingprofile = ProfileSerializer(required=False)
     password = serializers.CharField(
         write_only=True,
         required=False,
@@ -23,15 +23,14 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ("url", "email", "password", "first_name", "last_name", "UcarpoolingProfile")
+        fields = ("url", "email", "password", "first_name", "last_name", "ucarpoolingprofile")
 
     def create(self, validated_data):
-        profile_data = validated_data.pop("UcarpoolingProfile", None)
+        profile_data = validated_data.pop("ucarpoolingprofile", None)
+
+        validated_data["username"] = validated_data["email"]
 
         password = validated_data.get("password")
-
-        validated_data['username'] = validated_data.get("email")
-
         if password:
             validated_data["password"] = make_password(password)
 
@@ -44,7 +43,7 @@ class UserSerializer(serializers.ModelSerializer):
         return instance
 
     def update(self, instance, validated_data):
-        profile_data = validated_data.pop("UcarpoolingProfile", None)
+        profile_data = validated_data.pop("ucarpoolingprofile", None)
 
         password = validated_data.get("password")
         if password:
@@ -52,15 +51,17 @@ class UserSerializer(serializers.ModelSerializer):
         instance.first_name = validated_data.get("first_name", instance.first_name)
         instance.last_name = validated_data.get("last_name", instance.last_name)
         instance.email = validated_data.get("email", instance.email)
+        instance.username = validated_data.get("email", instance.username)
 
         with transaction.atomic():
             instance.save()
 
             if profile_data:
-                profile = instance.UcarpoolingProfile
+                profile = instance.ucarpoolingprofile
                 if profile:
-                    profile.birth_date = profile_data.get("birth_date", profile.birth_date)
+                    profile.smoker = profile_data.get("smoker", profile.smoker)
                     profile.sex = profile_data.get("sex", profile.sex)
+                    profile.musicTaste = profile_data.get("musicTaste", profile.musicTaste)
                     profile.save()
 
                 else:
