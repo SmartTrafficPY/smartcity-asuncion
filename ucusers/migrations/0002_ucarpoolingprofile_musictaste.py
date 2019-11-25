@@ -6,14 +6,24 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('ucusers', '0001_initial'),
-    ]
+    dependencies = [('ucusers', '0001_initial')]
 
-    operations = [
-        migrations.AddField(
-            model_name='ucarpoolingprofile',
-            name='musicTaste',
-            field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(choices=[('NO_PREF', 'No preference'), ('SILENCE', 'I like silence'), ('POP', 'Pop'), ('TECHNO', 'Techno'), ('ELECTRONIC', 'Electronic'), ('ROCK', 'Rock'), ('METAL', 'Metal'), ('RAP', 'Rap'), ('REGGAE', 'Reggae'), ('CUMBIA', 'Cumbia'), ('REGGAETON', 'Reggaeton'), ('TRAP', 'Trap'), ('FUNK', 'Funk')], max_length=15), default=list, size=None),
-        ),
-    ]
+    operations = [migrations.AddField(model_name='ucarpoolingprofile',
+                  name='musicTaste',
+                  field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(
+                      choices=[
+                       ('NO_PREF', 'No preference'),
+                       ('SILENCE', 'I like silence'),
+                       ('POP', 'Pop'),
+                       ('TECHNO', 'Techno'),
+                       ('ELECTRONIC', 'Electronic'),
+                       ('ROCK', 'Rock'),
+                       ('METAL', 'Metal'),
+                       ('RAP', 'Rap'),
+                       ('REGGAE', 'Reggae'),
+                       ('CUMBIA', 'Cumbia'),
+                       ('REGGAETON', 'Reggaeton'),
+                       ('TRAP', 'Trap'),
+                       ('FUNK', 'Funk'),
+                      ],
+                      max_length=15), default=list, size=None))]
