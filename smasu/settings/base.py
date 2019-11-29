@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "splots",
     "smovusers",
     "ucusers",
+    "uccarpool",
     "rest_framework",
     "rest_framework.authtoken",
 ]
