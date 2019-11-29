@@ -25,12 +25,12 @@ class UserItinerarySerializer(serializers.ModelSerializer):
         data["ucarpoolingProfile"] = request_ucarpoolingProfile
 
         """Serializing the Origin and Destination fields into PointFields"""
-        if data["origin"]:
+        if "origin" in data:
             latitude, longitude = data["origin"].split(",")
             origin = Point(float(latitude), float(longitude))
             data["origin"] = origin
 
-        if data["destination"]:
+        if "destination" in data:
             latitude, longitude = data["destination"].split(",")
             destination = Point(float(latitude), float(longitude))
             data["destination"] = destination
