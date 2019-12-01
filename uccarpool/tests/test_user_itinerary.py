@@ -10,8 +10,6 @@ from ucusers.models import UcarpoolingProfile
 
 USERITINERARY_URL = reverse("ucusers:useritinerary-list")
 
-# Test that it updates itinerary
-
 
 def detail_url(itinerary_id):
     """Return useritinerary detail URL"""

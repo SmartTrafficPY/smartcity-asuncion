@@ -1,8 +1,9 @@
 from django.contrib.gis.geos import Point
 from rest_framework import serializers
 from ucusers.models import UcarpoolingProfile
+from ucusers.serializers import ProfileSerializer
 
-from .models import UserItinerary
+from .models import Carpool, UserItinerary
 
 
 class UserItinerarySerializer(serializers.ModelSerializer):
@@ -50,3 +51,26 @@ class UserItinerarySerializer(serializers.ModelSerializer):
         data_to_save = self.itineraryParser(validated_data)
 
         return super().update(instance, data_to_save)
+
+
+class CarpoolSerializer(serializers.ModelSerializer):
+    """ Serializer for the UserItinerary model """
+
+    driver = serializers.PrimaryKeyRelatedField(queryset=UcarpoolingProfile.objects.all())
+
+    poolers = serializers.PrimaryKeyRelatedField(many=True, queryset=UcarpoolingProfile.objects.all())
+
+    class Meta:
+
+        model = Carpool
+
+        fields = ("id", "driver", "poolers", "carpoolItinerary")
+
+        read_only_fields = ("id",)
+
+
+class CarpoolDetailSerializer(CarpoolSerializer):
+    """Serializer for detailed Carpool"""
+
+    driver = ProfileSerializer()
+    poolers = ProfileSerializer(many=True, read_only=True)

@@ -9,7 +9,7 @@ app_name = "ucusers"
 router = DefaultRouter()
 router.register("users", ucusers_views.UserView)
 router.register("itinerary", uccarpool_views.UserItineraryView)
-
+router.register("carpool", uccarpool_views.CarpoolView)
 
 urlpatterns = [
     path("", include(router.urls)),
