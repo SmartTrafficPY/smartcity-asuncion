@@ -50,7 +50,19 @@ class StatusUpdatesView(viewsets.ModelViewSet):
 
     @receiver(post_save, sender=StatusUpdate)
     def create_event(sender, instance, **kwargs):
-
+        report = instance.reportid
+        count_true = StatusUpdate.objects.filter(value=True, reportid=report).count()
+        count_false = StatusUpdate.objects.filter(value=False, reportid=report).count
+        if count_true >= 0 and count_true < 3 and count_false >= 0 and count_false < 3:
+            report.status = Report.STATE_UNKNOWN
+        elif count_false > 0 and count_false < 3 and count_true >= 3:
+            report.status = Report.STATE_UNKNOWN
+        elif count_false == 3 and count_true >= 0:
+            report.status = Report.STATE_RESOLVED
+        if count_true >= 3 and count_false == 0:
+            report.status = Report.STATE_CONFIRMED
+        report.modified = instance.created
+        report.save()
         with transaction.atomic():
             if kwargs.get("created", False):
                 Event(
