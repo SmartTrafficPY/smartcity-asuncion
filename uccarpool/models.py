@@ -86,3 +86,23 @@ class Carpool(models.Model):
     )
     poolers = models.ManyToManyField(UcarpoolingProfile, related_name="poolers")
     carpoolItinerary = models.ForeignKey(CarpoolItinerary, on_delete=models.CASCADE, blank=True, null=True)
+
+
+class RequestCarpool(models.Model):
+    """
+    A request to be part of a carpool from a sender to a reciever
+    ...
+
+    Attributes
+    ----------
+    driver : Person
+        Who is the driver
+    pooler : Person
+        A passanger that is part of the carpool
+    carpoolItinerary : CarpoolItinerary
+        To which CarpoolItinerary this carpool is assigned to
+    """
+
+    sender = models.ForeignKey(UcarpoolingProfile, on_delete=models.CASCADE, related_name="sender")
+    recipient = models.ForeignKey(UcarpoolingProfile, on_delete=models.CASCADE, related_name="recipient")
+    subject = models.ForeignKey(Carpool, on_delete=models.CASCADE, blank=True, null=True)

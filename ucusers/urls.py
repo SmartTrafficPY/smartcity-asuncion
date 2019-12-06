@@ -10,6 +10,7 @@ router = DefaultRouter()
 router.register("users", ucusers_views.UserView)
 router.register("itinerary", uccarpool_views.UserItineraryView)
 router.register("carpool", uccarpool_views.CarpoolView)
+router.register("carpool-request", uccarpool_views.RequestCarpoolView)
 
 urlpatterns = [
     path("", include(router.urls)),

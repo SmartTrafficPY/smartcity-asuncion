@@ -3,7 +3,7 @@ from rest_framework import serializers
 from ucusers.models import UcarpoolingProfile
 from ucusers.serializers import ProfileSerializer
 
-from .models import Carpool, UserItinerary
+from .models import Carpool, RequestCarpool, UserItinerary
 
 
 class UserItinerarySerializer(serializers.ModelSerializer):
@@ -74,3 +74,26 @@ class CarpoolDetailSerializer(CarpoolSerializer):
 
     driver = ProfileSerializer()
     poolers = ProfileSerializer(many=True, read_only=True)
+
+
+class RequestCarpoolSerializer(serializers.ModelSerializer):
+    """ Serializer for the RequestCarpool model """
+
+    recipient = serializers.PrimaryKeyRelatedField(queryset=UcarpoolingProfile.objects.all())
+
+    subject = serializers.PrimaryKeyRelatedField(queryset=Carpool.objects.all())
+
+    class Meta:
+
+        model = RequestCarpool
+
+        fields = ("id", "recipient", "subject")
+
+        read_only_fields = ("id",)
+
+
+class RequestCarpoolDetailSerializer(RequestCarpoolSerializer):
+    """Serializer for detailed RequestCarpool"""
+
+    recipient = ProfileSerializer()
+    subject = CarpoolDetailSerializer()

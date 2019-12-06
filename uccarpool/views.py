@@ -5,8 +5,14 @@ from rest_framework.permissions import IsAuthenticated
 from smasu.authentication import IsCreateView, IsListView, IsSameUser, IsSuperUserOrStaff
 from ucusers.models import UcarpoolingProfile
 
-from .models import Carpool, UserItinerary
-from .serializers import CarpoolDetailSerializer, CarpoolSerializer, UserItinerarySerializer
+from .models import Carpool, RequestCarpool, UserItinerary
+from .serializers import (
+    CarpoolDetailSerializer,
+    CarpoolSerializer,
+    RequestCarpoolDetailSerializer,
+    RequestCarpoolSerializer,
+    UserItinerarySerializer,
+)
 
 
 """
@@ -101,3 +107,54 @@ class CarpoolView(viewsets.ReadOnlyModelViewSet):
             return CarpoolDetailSerializer
 
         return self.serializer_class
+
+
+class RequestCarpoolView(viewsets.ModelViewSet):
+    queryset = RequestCarpool.objects.all()
+    serializer_class = RequestCarpoolSerializer
+    authentication_classes = (SessionAuthentication, TokenAuthentication)
+    permission_classes = (
+        IsSuperUserOrStaff | (IsAuthenticated & IsUcarpoolingUser) | (~(IsListView | IsCreateView) & IsSameUser),
+    )
+
+    def get_queryset(self):
+
+        """
+        For returning objects for the current authenticated user only.
+        Getter of the queryset.
+        """
+        queryset = self.queryset
+
+        """
+        Checking if a staff member made the request.
+        Only staff members can list all RequestCarpool objects in the DB.
+        Regular users can only list their RequestCarpool, either being sender or recipient.
+        """
+        if not self.request.user.is_staff:
+            """The request was not made by a staff member"""
+
+            """
+            Filtering the queryset by the user that made the GET request
+            """
+            request_ucarpoolingProfile = UcarpoolingProfile.objects.get(user_id=self.request.user.pk)
+            queryset = (
+                queryset.filter(Q(sender=request_ucarpoolingProfile) | Q(recipient=request_ucarpoolingProfile))
+                .distinct()
+                .order_by("-id")
+            )
+
+        return queryset
+
+    def get_serializer_class(self):
+        """ Return appropraite serializer class """
+
+        """ Checking which type of request was made eg: GET, POST, PUT... """
+        if self.action == "retrieve":
+            return RequestCarpoolDetailSerializer
+
+        return self.serializer_class
+
+    def perform_create(self, serializer):
+        """ What to do if there is a POST request """
+        request_ucarpoolingProfile = UcarpoolingProfile.objects.get(user_id=self.request.user.pk)
+        serializer.save(sender=request_ucarpoolingProfile)
