@@ -51,7 +51,13 @@ class ObtainAuthToken(views.ObtainAuthToken):
 
         token, created = Token.objects.get_or_create(user=user)
 
-        return Response({"token": token.key, "url": reverse("user-detail", args=[user.pk], request=request)})
+        return Response(
+            {
+                "token": token.key,
+                "url": reverse("ucusers:user-detail", args=[user.pk], request=request),
+                "ucarpoolingrofile": user.ucarpoolingprofile.id,
+            }
+        )
 
 
 obtain_auth_token = ObtainAuthToken.as_view()
