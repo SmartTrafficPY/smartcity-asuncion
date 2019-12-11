@@ -92,7 +92,15 @@ DATABASES = {
         "PASSWORD": "smarttraffic",
         "HOST": "127.0.0.1",
         "PORT": "5432",
-    }
+    },
+    "map": {
+        "ENGINE": "django.contrib.gis.db.backends.postgis",
+        "NAME": "paraguay",
+        "USER": "postgres",
+        "PASSWORD": "postgres",
+        "HOST": "127.0.0.1",
+        "PORT": "6000",
+    },
 }
 
 CACHES = {

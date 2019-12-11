@@ -2,7 +2,9 @@ version: '3'
 
 services:
   postgres:
+    container_name: django-database
     image: mdillon/postgis:11
+    
     volumes:
       - db-data:/var/lib/postgresql/data
     restart: always
@@ -11,6 +13,16 @@ services:
     # env_file: ./postgres-db/.env
     networks:
       - smarttraffic_conn
+  pgrouting:
+    image: pgrouting/pgrouting:v2.6.3-postgresql_11
+    container_name: street-network-database
+    ports:
+      - "6000:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=postgres
 
 networks:
   smarttraffic_conn:
