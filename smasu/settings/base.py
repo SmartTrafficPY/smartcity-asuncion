@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "spusers",
     "splots",
     "smovusers",
+    "smrouter",
     "rest_framework",
     "rest_framework.authtoken",
 ]
@@ -95,11 +96,11 @@ DATABASES = {
     },
     "map": {
         "ENGINE": "django.contrib.gis.db.backends.postgis",
-        "NAME": "paraguay",
+        "NAME": "asuncion",
         "USER": "postgres",
         "PASSWORD": "postgres",
         "HOST": "127.0.0.1",
-        "PORT": "6000",
+        "PORT": "5432",
     },
 }
 
