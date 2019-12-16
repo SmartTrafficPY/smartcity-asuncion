@@ -36,7 +36,7 @@ class Router:
 
             query = """
             SELECT path.path_seq, nodes.lon, nodes.lat
-            from pgr_dijkstra('SELECT gid AS id, source, target, cost FROM ways',
+            from pgr_dijkstra('SELECT gid AS id, source, target, cost, reverse_cost, x1, y1, x2, y2  FROM ways',
             {node_id_origin}, {node_id_destination}) as path
             INNER JOIN ways_vertices_pgr as nodes on nodes.id=path.node
             ORDER BY path.path_seq;
