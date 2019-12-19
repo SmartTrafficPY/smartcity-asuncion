@@ -38,11 +38,21 @@ class UcarpoolingProfile(models.Model):
         (MUSIC_GENRE_FUNK, "Funk"),
     )
 
+    ELOQUENCE_LEVEL_LOW = 1
+    ELOQUENCE_LEVEL_MEDIUM = 2
+    ELOQUENCE_LEVEL_HIGH = 3
+    ELOQUENCE_LEVELS = (
+        (ELOQUENCE_LEVEL_LOW, "Introverted"),
+        (ELOQUENCE_LEVEL_MEDIUM, "Medium"),
+        (ELOQUENCE_LEVEL_HIGH, "Extroverted"),
+    )
+
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
     sex = models.CharField(max_length=16, choices=SEX_CHOICES)
     smoker = models.BooleanField()
     musicTaste = ArrayField(models.CharField(max_length=15, blank=False, choices=MUSIC_GENRES), default=list,)
+    eloquence_level = models.IntegerField(choices=ELOQUENCE_LEVELS, blank=True, null=True)
 
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)

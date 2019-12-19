@@ -28,12 +28,12 @@ class UserItinerarySerializer(serializers.ModelSerializer):
         """Serializing the Origin and Destination fields into PointFields"""
         if "origin" in data:
             latitude, longitude = data["origin"].split(",")
-            origin = Point(float(latitude), float(longitude))
+            origin = Point(float(longitude), float(latitude))
             data["origin"] = origin
 
         if "destination" in data:
             latitude, longitude = data["destination"].split(",")
-            destination = Point(float(latitude), float(longitude))
+            destination = Point(float(longitude), float(latitude))
             data["destination"] = destination
 
         return data

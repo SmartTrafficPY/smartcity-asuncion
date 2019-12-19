@@ -43,10 +43,12 @@ INSTALLED_APPS = [
     "smasu",
     "smhealth",
     "smevents",
+    "smrouter",
     "spusers",
     "splots",
     "smovusers",
-    "smrouter",
+    "ucusers",
+    "uccarpool",
     "rest_framework",
     "rest_framework.authtoken",
 ]

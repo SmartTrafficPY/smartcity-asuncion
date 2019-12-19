@@ -43,7 +43,7 @@ class UserItinerary(Itinerary):
         verbose_name_plural = "User Itineraries"
 
 
-class CarpoolItinerary(models.Model):
+class ItineraryRoute(models.Model):
     """
     Since a carpool has a route consisting of geographical points, a stamped Geopoint with date and time is modeled.
     ...
@@ -51,19 +51,19 @@ class CarpoolItinerary(models.Model):
     Attributes
     ----------
     itinerary : UserItinerary
-        The itinerary of the driver of the carpool
-    geopoints : ArrayField(PointField)
-        Latitude and longitude of a point in a carpool's route
+        The itinerary of the driver
+    path : ArrayField(IntegerField)
+        The sequence of nodes(topology) representing latitude and longitude in a driver's route.
     timestamps : ArrayField(datetime)
         Date and time for which a carpool has been or will be in that geopoint
     """
 
     itinerary = models.ForeignKey(UserItinerary, on_delete=models.CASCADE, blank=True, null=True)
-    geopoints = ArrayField(PointField(blank=True, null=True), default=list, blank=True, null=True)
+    path = ArrayField(models.IntegerField(blank=True, null=True), default=list, blank=True, null=True)
     timestamps = ArrayField(models.DateTimeField(auto_now_add=False, blank=True, null=True), blank=True, null=True)
 
     class Meta:
-        verbose_name_plural = "Carpool Itineraries"
+        verbose_name_plural = "Itinerary Routes"
 
 
 class Carpool(models.Model):
@@ -85,7 +85,7 @@ class Carpool(models.Model):
         UcarpoolingProfile, on_delete=models.CASCADE, blank=True, null=True, related_name="driver"
     )
     poolers = models.ManyToManyField(UcarpoolingProfile, related_name="poolers")
-    carpoolItinerary = models.ForeignKey(CarpoolItinerary, on_delete=models.CASCADE, blank=True, null=True)
+    route = models.ForeignKey(ItineraryRoute, on_delete=models.CASCADE, blank=True, null=True)
 
 
 class RequestCarpool(models.Model):
@@ -95,12 +95,12 @@ class RequestCarpool(models.Model):
 
     Attributes
     ----------
-    driver : Person
-        Who is the driver
-    pooler : Person
-        A passanger that is part of the carpool
-    carpoolItinerary : CarpoolItinerary
-        To which CarpoolItinerary this carpool is assigned to
+    sender : UcarpoolingProfile
+        The user that sends the carpool request
+    recipient : UcarpoolingProfile
+        The user that the request is sent to
+    subject : Carpool
+        Which carpool this request is about
     """
 
     sender = models.ForeignKey(UcarpoolingProfile, on_delete=models.CASCADE, related_name="sender")

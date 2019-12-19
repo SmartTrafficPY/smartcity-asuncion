@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from smasu.authentication import IsCreateView, IsListView, IsSameUser, IsSuperUserOrStaff
 from ucusers.models import UcarpoolingProfile
 
+from .matcher import getMatchedUsers
 from .models import Carpool, RequestCarpool, UserItinerary
 from .serializers import (
     CarpoolDetailSerializer,
@@ -61,6 +62,15 @@ class UserItineraryView(viewsets.ModelViewSet):
             queryset = queryset.filter(ucarpoolingProfile=request_ucarpoolingProfile).order_by("-id")
 
         return queryset
+
+    def perform_create(self, serializer):
+        """ What to do if there is a POST request """
+        itinerary_created = serializer.save()
+
+        request_ucarpoolingProfile = UcarpoolingProfile.objects.get(user_id=self.request.user.pk)
+        matched_users = getMatchedUsers(request_ucarpoolingProfile, itinerary_created)
+
+        return matched_users
 
 
 class CarpoolView(viewsets.ReadOnlyModelViewSet):
