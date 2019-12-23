@@ -30,6 +30,7 @@ entities_patterns = (
     [
         path("users/<int:pk>/", views.empty, name="users"),
         path("smartparking/event_types/<slug:pk>/", views.empty, name="smartparking_event_types"),
+        path("smartmoving/event_types/<slug:pk>", views.empty, name="smartmoving_event_types"),
     ],
     "entities",
 )
