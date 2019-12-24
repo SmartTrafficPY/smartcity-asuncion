@@ -6,10 +6,33 @@ from uccarpool import heuristic_functions
 from uccarpool.models import ItineraryRoute, UserItinerary
 
 
-def calculateLogisticMatch():
-    """ """
-    # TODO
-    return 50.0
+def calculateLogisticMatch(meeting_point, route):
+    """Calculates the logistics aspect of the carpooling math formula"""
+
+    logistics_affinity = 0.0
+
+    logistic_heuristic_weights = apps.get_app_config("uccarpool").logistic_heuristic_weights
+    logistic_weights_proportion = 1 - apps.get_app_config("uccarpool").personality_weights_proportion
+
+    # calcula el porcentaje de caminata comparado a la distancia maxima de caminata configurada para la app
+    min_walking_distance = apps.get_app_config("uccarpool").min_walking_distance
+
+    logistics_affinity = (
+        logistic_heuristic_weights['walking_distance_to_path']
+        * ((min_walking_distance - meeting_point['cost']) / min_walking_distance)
+    )
+
+    # Calcula el porcentaje de distancia recorrida
+    index = route.path.index(meeting_point['end_vid'])
+    route_cost = route.aggCost[-1]
+    cost_meeting_point = route.aggCost[index]
+
+    logistics_affinity += (
+        logistic_heuristic_weights['distance_to_destination']
+        * ((route_cost - cost_meeting_point) / route_cost)
+    )
+
+    return logistic_weights_proportion * logistics_affinity
 
 
 def calculatePersonalityMatch(UserA, UserB):
@@ -17,16 +40,18 @@ def calculatePersonalityMatch(UserA, UserB):
 
     personality_affinity = 0.0
 
-    heuristic_weights = apps.get_app_config("personality_heuristic_weights")
-    personality_weights_proportion = apps.get_app_config("personality_weights_proportion")
+    heuristic_weights = apps.get_app_config("uccarpool").personality_heuristic_weights
+    personality_weights_proportion = apps.get_app_config("uccarpool").personality_weights_proportion
 
     personality_affinity = (
         heuristic_weights["smoke"] * heuristic_functions.function_smoker(UserA.smoker, UserB.smoker)
         + heuristic_weights["eloquence_level"]
-        * heuristic_functions.function_sex(UserA.eloquence_level, UserB.eloquence_level)
-        + heuristic_weights["musicTaste"] * heuristic_functions.function_sex(UserA.musicTaste, UserB.musicTaste)
+        * heuristic_functions.function_eloquence_level(UserA.eloquenceLevel, UserB.eloquenceLevel)
+        + heuristic_weights["musicTaste"]
+        * heuristic_functions.function_music_taste(UserA.musicTaste, UserB.musicTaste)
         + heuristic_weights["sex"] * heuristic_functions.function_sex(UserA.sex, UserB.sex)
     )
+
     return personality_affinity * personality_weights_proportion
 
 
@@ -46,21 +71,23 @@ def getRouteItinerary(itinerary):
 def getMatchedUsers(userUcarpoolingProfile, userItinerary):
     """Procedure that returns the list of users who have a % match greater than 0 with user"""
 
-    """Si es chofer, guarda la trayectoria al destino para calculos posteriores"""
-    if userItinerary.isDriver:
-        route = getRouteItinerary(userItinerary)
-
     """Se obtienen los itinerarios compatibles con +- 15 minutos de diferencia para llegar al destino"""
-    date_start = userItinerary.timeOfArrival - timedelta(hours=0, minutes=15)
-    date_finish = userItinerary.timeOfArrival + timedelta(hours=0, minutes=15)
+    date_start = userItinerary.timeOfArrival - timedelta(
+        minutes=apps.get_app_config("uccarpool").time_tolerance_early_in_minutes
+    )
+    date_finish = userItinerary.timeOfArrival + timedelta(
+        minutes=apps.get_app_config("uccarpool").time_tolerance_late_in_minutes
+    )
     compatible_itineraries = UserItinerary.objects.filter(timeOfArrival__range=(date_start, date_finish)).exclude(
         ucarpoolingProfile=userUcarpoolingProfile
     )
 
     """Si hubieron personas compatibles con su horario"""
+    matched_users = []
     if compatible_itineraries:
 
-        matched_users = []
+        if userItinerary.isDriver:
+            userItineraryRoute = ItineraryRoute.objects.get(itinerary=userItinerary)
 
         """Para cada itinerario compatible"""
         for another_user_itinerary in compatible_itineraries:
@@ -85,31 +112,32 @@ def getMatchedUsers(userUcarpoolingProfile, userItinerary):
             if another_user_itinerary.isDriver:
 
                 # Obtener la trayectoria del otro usuario
-                another_user_itinerary_path = ItineraryRoute.objects.get(itinerary=another_user_itinerary).path
+                another_user_itinerary_route = ItineraryRoute.objects.get(itinerary=another_user_itinerary)
 
                 # Comparar el origen del usuario contra la ruta del otro usuario
                 min_distance_point_to_path = router.get_min_distance(
-                    point=userItinerary.origin, path=another_user_itinerary_path
+                    point=userItinerary.origin, path=another_user_itinerary_route.path
                 )
 
                 # Controlar que si alguna de la distancia minima es menos que X metros
-                if min_distance_point_to_path < min_walking_distance:
+                if min_distance_point_to_path['cost'] < min_walking_distance:
                     puede_ser_buscado = True  # el usuario puede ser buscado por el otro usuario
 
             """Si el usuario es chofer, chequear si su trayecto pasa por la casa del otro usuario"""
             if userItinerary.isDriver:
 
-                min_distance_path_to_origin = router.get_min_distance(point=another_user_itinerary.origin, path=route)
+                min_distance_path_to_origin = router.get_min_distance(
+                    point=another_user_itinerary.origin,
+                    path=userItineraryRoute.path
+                )
 
                 # Controlar que si alguna de la distancia minima es menos que X metros
-                if min_distance_path_to_origin < min_walking_distance:
+                if min_distance_path_to_origin['cost'] < min_walking_distance:
                     puede_buscar = True  # el usuario puede ser buscar por el otro usuario
 
             if (not puede_ser_buscado) and (not puede_buscar):
                 # Si no puede buscar ni puede ser buscado
                 continue
-
-            # Verificar si el carpool esta lleno
 
             """
             -----
@@ -122,13 +150,57 @@ def getMatchedUsers(userUcarpoolingProfile, userItinerary):
 
             # Calcular/get el procentaje de compatibilidad de personalidades 2.2.1-2.2.4
 
-            match_percentage = calculatePersonalityMatch(
+            personality_match_percentage = calculatePersonalityMatch(
                 userItinerary.ucarpoolingProfile, another_user_itinerary.ucarpoolingProfile
             )
 
             # Calcular el porcentaje de compatibilidad de distancias 2.2.5 y 2.2.6
-            # TODO
-            match_percentage += calculateLogisticMatch()
+
+            if (puede_ser_buscado):
+                """Calculate the match percentage if the user is to be picked up by another user"""
+                puede_ser_buscado_match_percentage = personality_match_percentage + calculateLogisticMatch(
+                    min_distance_point_to_path,
+                    another_user_itinerary_route
+                )
+
+            if (puede_buscar):
+                """Calculate the match percentage if the user picks up another user"""
+                puede_buscar_match_percentage = personality_match_percentage + calculateLogisticMatch(
+                    min_distance_path_to_origin,
+                    userItineraryRoute
+                )
+
+            if (puede_ser_buscado and puede_buscar):
+                if (puede_ser_buscado_match_percentage > puede_buscar_match_percentage):
+                    """Is better to be picked up by another user"""
+                    matched_users.append({
+                        'role': "ser buscado",
+                        'match_percentage': puede_ser_buscado_match_percentage,
+                        'user': another_user_itinerary.ucarpoolingProfile,
+                        'meeting_point': min_distance_point_to_path['end_vid']
+                    })
+                else:
+                    """Is better to be pick up another user"""
+                    matched_users.append({
+                        'user': another_user_itinerary.ucarpoolingProfile,
+                        'match_percentage': puede_buscar_match_percentage,
+                        'role': "buscar",
+                        'meeting_point': min_distance_path_to_origin['end_vid']
+                    })
+            elif (puede_ser_buscado):
+                matched_users.append({
+                    'role': "ser buscado",
+                    'match_percentage': puede_ser_buscado_match_percentage,
+                    'user': another_user_itinerary.ucarpoolingProfile,
+                    'meeting_point': min_distance_point_to_path['end_vid']
+                })
+            else:
+                matched_users.append({
+                    'role': "buscar",
+                    'match_percentage': puede_buscar_match_percentage,
+                    'user': another_user_itinerary.ucarpoolingProfile,
+                    'meeting_point': min_distance_path_to_origin['end_vid']
+                })
 
     if not matched_users:
         return "Didn't find compatible itineraries"

@@ -60,6 +60,7 @@ class ItineraryRoute(models.Model):
 
     itinerary = models.ForeignKey(UserItinerary, on_delete=models.CASCADE, blank=True, null=True)
     path = ArrayField(models.IntegerField(blank=True, null=True), default=list, blank=True, null=True)
+    aggCost = ArrayField(models.FloatField(blank=True, null=True), default=list, blank=True, null=True)
     timestamps = ArrayField(models.DateTimeField(auto_now_add=False, blank=True, null=True), blank=True, null=True)
 
     class Meta:

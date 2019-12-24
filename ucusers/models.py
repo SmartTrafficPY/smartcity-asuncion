@@ -52,7 +52,7 @@ class UcarpoolingProfile(models.Model):
     sex = models.CharField(max_length=16, choices=SEX_CHOICES)
     smoker = models.BooleanField()
     musicTaste = ArrayField(models.CharField(max_length=15, blank=False, choices=MUSIC_GENRES), default=list,)
-    eloquence_level = models.IntegerField(choices=ELOQUENCE_LEVELS, blank=True, null=True)
+    eloquenceLevel = models.IntegerField(choices=ELOQUENCE_LEVELS, blank=True, null=True)
 
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)

@@ -3,7 +3,9 @@ from rest_framework import serializers
 from ucusers.models import UcarpoolingProfile
 from ucusers.serializers import ProfileSerializer
 
-from .models import Carpool, RequestCarpool, UserItinerary
+from smrouter.utils import Router
+
+from .models import Carpool, RequestCarpool, UserItinerary, ItineraryRoute
 
 
 class UserItinerarySerializer(serializers.ModelSerializer):
@@ -41,9 +43,21 @@ class UserItinerarySerializer(serializers.ModelSerializer):
     def create(self, validated_data):
 
         data_to_save = self.itineraryParser(validated_data)
+        itinerary_created = UserItinerary.objects.create(**data_to_save)
+
+        """Si es chofer, guarda la trayectoria al destino para calculos posteriores"""
+        if itinerary_created.isDriver:
+            router = Router()
+            path = router.driver_path(origin=itinerary_created.origin, destination=itinerary_created.destination)
+            # Guardar en el modelo ItineraryRoute
+            ItineraryRoute.objects.create(
+                itinerary=itinerary_created,
+                path=path['id'],
+                aggCost=path['agg_cost']
+            )
 
         """ Create a new user with encypted password and return it """
-        return UserItinerary.objects.create(**data_to_save)
+        return itinerary_created
 
     def update(self, instance, validated_data):
         """Converting the PUT fields into Python objects"""
