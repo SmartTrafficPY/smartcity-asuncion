@@ -11,7 +11,7 @@ class UccarpoolConfig(AppConfig):
     institution_location = {"latitude": -25.324488, "longitude": -57.635435}
     min_walking_distance = 500  # In meters
 
-    personality_weights_proportion = 0.20  # 20%
+    personality_weights_proportion = 0.15  # 15%
 
     """
     All weights added must be a total of 1.0
@@ -24,6 +24,6 @@ class UccarpoolConfig(AppConfig):
     }
 
     logistic_heuristic_weights = {
-        "distance_to_destination": 0.8,
-        "walking_distance_to_path": 0.2,
+        "distance_to_destination": 0.85,
+        "walking_distance_to_path": 0.15,
     }

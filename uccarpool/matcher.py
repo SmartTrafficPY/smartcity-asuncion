@@ -170,39 +170,34 @@ def getMatchedUsers(userUcarpoolingProfile, userItinerary):
                     userItineraryRoute
                 )
 
+            matched_user = {
+                'user': another_user_itinerary.ucarpoolingProfile.user.username
+            }
+
             if (puede_ser_buscado and puede_buscar):
                 if (puede_ser_buscado_match_percentage > puede_buscar_match_percentage):
                     """Is better to be picked up by another user"""
-                    matched_users.append({
-                        'role': "ser buscado",
-                        'match_percentage': puede_ser_buscado_match_percentage,
-                        'user': another_user_itinerary.ucarpoolingProfile,
-                        'meeting_point': min_distance_point_to_path['end_vid']
-                    })
+                    matched_user['role'] = "ser buscado"
+                    matched_user['match_percentage'] = puede_ser_buscado_match_percentage
+                    matched_user['meeting_point'] = min_distance_point_to_path['end_vid']
                 else:
                     """Is better to be pick up another user"""
-                    matched_users.append({
-                        'user': another_user_itinerary.ucarpoolingProfile,
-                        'match_percentage': puede_buscar_match_percentage,
-                        'role': "buscar",
-                        'meeting_point': min_distance_path_to_origin['end_vid']
-                    })
+                    matched_user['role'] = "buscar"
+                    matched_user['match_percentage'] = puede_buscar_match_percentage
+                    matched_user['meeting_point'] = min_distance_path_to_origin['end_vid']
             elif (puede_ser_buscado):
-                matched_users.append({
-                    'role': "ser buscado",
-                    'match_percentage': puede_ser_buscado_match_percentage,
-                    'user': another_user_itinerary.ucarpoolingProfile,
-                    'meeting_point': min_distance_point_to_path['end_vid']
-                })
+                matched_user['role'] = "ser buscado"
+                matched_user['match_percentage'] = puede_ser_buscado_match_percentage
+                matched_user['meeting_point'] = min_distance_point_to_path['end_vid']
             else:
-                matched_users.append({
-                    'role': "buscar",
-                    'match_percentage': puede_buscar_match_percentage,
-                    'user': another_user_itinerary.ucarpoolingProfile,
-                    'meeting_point': min_distance_path_to_origin['end_vid']
-                })
+                matched_user['role'] = "buscar"
+                matched_user['match_percentage'] = puede_buscar_match_percentage
+                matched_user['meeting_point'] = min_distance_path_to_origin['end_vid']
+
+            matched_users.append(matched_user)
 
     if not matched_users:
         return "Didn't find compatible itineraries"
     else:
-        return matched_users
+        """Returning matched users sorted by match percentage. Higher match first"""
+        return sorted(matched_users, key=lambda item: item["match_percentage"], reverse=True)

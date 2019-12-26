@@ -1,5 +1,6 @@
 from django.db.models import Q
-from rest_framework import viewsets
+from rest_framework import viewsets, status
+from rest_framework.response import Response
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from smasu.authentication import IsCreateView, IsListView, IsSameUser, IsSuperUserOrStaff
@@ -63,14 +64,17 @@ class UserItineraryView(viewsets.ModelViewSet):
 
         return queryset
 
-    def perform_create(self, serializer):
+    def create(self, request, *args, **kwargs):
         """ What to do if there is a POST request """
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
         itinerary_created = serializer.save()
 
         request_ucarpoolingProfile = UcarpoolingProfile.objects.get(user_id=self.request.user.pk)
         matched_users = getMatchedUsers(request_ucarpoolingProfile, itinerary_created)
 
-        return matched_users
+        headers = self.get_success_headers(serializer.data)
+        return Response(matched_users, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class CarpoolView(viewsets.ReadOnlyModelViewSet):
