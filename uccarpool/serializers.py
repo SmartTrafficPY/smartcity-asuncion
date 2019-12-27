@@ -1,11 +1,10 @@
 from django.contrib.gis.geos import Point
 from rest_framework import serializers
+from smrouter.utils import Router
 from ucusers.models import UcarpoolingProfile
 from ucusers.serializers import ProfileSerializer
 
-from smrouter.utils import Router
-
-from .models import Carpool, RequestCarpool, UserItinerary, ItineraryRoute
+from .models import Carpool, ItineraryRoute, RequestCarpool, UserItinerary
 
 
 class UserItinerarySerializer(serializers.ModelSerializer):
@@ -24,8 +23,7 @@ class UserItinerarySerializer(serializers.ModelSerializer):
     def itineraryParser(self, data):
         """Converting the input fields into Python objects"""
 
-        request_ucarpoolingProfile = UcarpoolingProfile.objects.get(user_id=self.context["request"].user.pk)
-        data["ucarpoolingProfile"] = request_ucarpoolingProfile
+        data["ucarpoolingProfile"] = UcarpoolingProfile.objects.get(user_id=self.context["request"].user.pk)
 
         """Serializing the Origin and Destination fields into PointFields"""
         if "origin" in data:
@@ -50,11 +48,7 @@ class UserItinerarySerializer(serializers.ModelSerializer):
             router = Router()
             path = router.driver_path(origin=itinerary_created.origin, destination=itinerary_created.destination)
             # Guardar en el modelo ItineraryRoute
-            ItineraryRoute.objects.create(
-                itinerary=itinerary_created,
-                path=path['id'],
-                aggCost=path['agg_cost']
-            )
+            ItineraryRoute.objects.create(itinerary=itinerary_created, path=path["id"], aggCost=path["agg_cost"])
 
         """ Create a new user with encypted password and return it """
         return itinerary_created
