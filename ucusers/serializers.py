@@ -9,7 +9,7 @@ from .models import UcarpoolingProfile
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UcarpoolingProfile
-        fields = ("sex", "smoker", "musicTaste")
+        fields = ("sex", "smoker", "musicTaste", "eloquenceLevel")
 
 
 class UserSerializer(serializers.ModelSerializer):

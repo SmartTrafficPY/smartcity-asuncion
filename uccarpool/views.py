@@ -1,8 +1,9 @@
 from django.db.models import Q
-from rest_framework import viewsets, status
-from rest_framework.response import Response
+from rest_framework import status, viewsets
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
+from rest_framework.decorators import action  # For adding actions to ViewSet
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from smasu.authentication import IsCreateView, IsListView, IsSameUser, IsSuperUserOrStaff
 from ucusers.models import UcarpoolingProfile
 
@@ -64,17 +65,28 @@ class UserItineraryView(viewsets.ModelViewSet):
 
         return queryset
 
-    def create(self, request, *args, **kwargs):
-        """ What to do if there is a POST request """
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        itinerary_created = serializer.save()
+    @action(methods=["GET"], detail=True, url_path="matches")
+    def get_matched_users_for_carpool(self, request, pk=None):
+        """
+        Getting matched users for a specific itinerary
+        through /api/ucarpooling/itinerary/{id}/matches
+        """
+
+        """Retrieving the object based in the id in the URL"""
+
+        itinerary = self.get_object()
 
         request_ucarpoolingProfile = UcarpoolingProfile.objects.get(user_id=self.request.user.pk)
-        matched_users = getMatchedUsers(request_ucarpoolingProfile, itinerary_created)
+        matched_users = getMatchedUsers(request_ucarpoolingProfile, itinerary)
 
-        headers = self.get_success_headers(serializer.data)
-        return Response(matched_users, status=status.HTTP_201_CREATED, headers=headers)
+        if not matched_users:
+            return Response(
+                {"detail": "Could not find any matches for this itinerary"}, status=status.HTTP_204_NO_CONTENT
+            )
+        else:
+            """Returning matched users sorted by match percentage. Higher match first"""
+            matched_users_sorted = sorted(matched_users, key=lambda item: item["match_percentage"], reverse=True)
+            return Response(matched_users_sorted, status=status.HTTP_200_OK)
 
 
 class CarpoolView(viewsets.ReadOnlyModelViewSet):

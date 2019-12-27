@@ -17,19 +17,17 @@ def calculateLogisticMatch(meeting_point, route):
     # calcula el porcentaje de caminata comparado a la distancia maxima de caminata configurada para la app
     min_walking_distance = apps.get_app_config("uccarpool").min_walking_distance
 
-    logistics_affinity = (
-        logistic_heuristic_weights['walking_distance_to_path']
-        * ((min_walking_distance - meeting_point['cost']) / min_walking_distance)
+    logistics_affinity = logistic_heuristic_weights["walking_distance_to_path"] * (
+        (min_walking_distance - meeting_point["cost"]) / min_walking_distance
     )
 
     # Calcula el porcentaje de distancia recorrida
-    index = route.path.index(meeting_point['end_vid'])
+    index = route.path.index(meeting_point["end_vid"])
     route_cost = route.aggCost[-1]
     cost_meeting_point = route.aggCost[index]
 
-    logistics_affinity += (
-        logistic_heuristic_weights['distance_to_destination']
-        * ((route_cost - cost_meeting_point) / route_cost)
+    logistics_affinity += logistic_heuristic_weights["distance_to_destination"] * (
+        (route_cost - cost_meeting_point) / route_cost
     )
 
     return logistic_weights_proportion * logistics_affinity
@@ -120,19 +118,18 @@ def getMatchedUsers(userUcarpoolingProfile, userItinerary):
                 )
 
                 # Controlar que si alguna de la distancia minima es menos que X metros
-                if min_distance_point_to_path['cost'] < min_walking_distance:
+                if min_distance_point_to_path["cost"] < min_walking_distance:
                     puede_ser_buscado = True  # el usuario puede ser buscado por el otro usuario
 
             """Si el usuario es chofer, chequear si su trayecto pasa por la casa del otro usuario"""
             if userItinerary.isDriver:
 
                 min_distance_path_to_origin = router.get_min_distance(
-                    point=another_user_itinerary.origin,
-                    path=userItineraryRoute.path
+                    point=another_user_itinerary.origin, path=userItineraryRoute.path
                 )
 
                 # Controlar que si alguna de la distancia minima es menos que X metros
-                if min_distance_path_to_origin['cost'] < min_walking_distance:
+                if min_distance_path_to_origin["cost"] < min_walking_distance:
                     puede_buscar = True  # el usuario puede ser buscar por el otro usuario
 
             if (not puede_ser_buscado) and (not puede_buscar):
@@ -156,48 +153,40 @@ def getMatchedUsers(userUcarpoolingProfile, userItinerary):
 
             # Calcular el porcentaje de compatibilidad de distancias 2.2.5 y 2.2.6
 
-            if (puede_ser_buscado):
+            if puede_ser_buscado:
                 """Calculate the match percentage if the user is to be picked up by another user"""
                 puede_ser_buscado_match_percentage = personality_match_percentage + calculateLogisticMatch(
-                    min_distance_point_to_path,
-                    another_user_itinerary_route
+                    min_distance_point_to_path, another_user_itinerary_route
                 )
 
-            if (puede_buscar):
+            if puede_buscar:
                 """Calculate the match percentage if the user picks up another user"""
                 puede_buscar_match_percentage = personality_match_percentage + calculateLogisticMatch(
-                    min_distance_path_to_origin,
-                    userItineraryRoute
+                    min_distance_path_to_origin, userItineraryRoute
                 )
 
-            matched_user = {
-                'user': another_user_itinerary.ucarpoolingProfile.user.username
-            }
+            matched_user = {"user": another_user_itinerary.ucarpoolingProfile.user.username}
 
-            if (puede_ser_buscado and puede_buscar):
-                if (puede_ser_buscado_match_percentage > puede_buscar_match_percentage):
+            if puede_ser_buscado and puede_buscar:
+                if puede_ser_buscado_match_percentage > puede_buscar_match_percentage:
                     """Is better to be picked up by another user"""
-                    matched_user['role'] = "ser buscado"
-                    matched_user['match_percentage'] = puede_ser_buscado_match_percentage
-                    matched_user['meeting_point'] = min_distance_point_to_path['end_vid']
+                    matched_user["role"] = "ser buscado"
+                    matched_user["match_percentage"] = puede_ser_buscado_match_percentage
+                    matched_user["meeting_point"] = min_distance_point_to_path["end_vid"]
                 else:
                     """Is better to be pick up another user"""
-                    matched_user['role'] = "buscar"
-                    matched_user['match_percentage'] = puede_buscar_match_percentage
-                    matched_user['meeting_point'] = min_distance_path_to_origin['end_vid']
-            elif (puede_ser_buscado):
-                matched_user['role'] = "ser buscado"
-                matched_user['match_percentage'] = puede_ser_buscado_match_percentage
-                matched_user['meeting_point'] = min_distance_point_to_path['end_vid']
+                    matched_user["role"] = "buscar"
+                    matched_user["match_percentage"] = puede_buscar_match_percentage
+                    matched_user["meeting_point"] = min_distance_path_to_origin["end_vid"]
+            elif puede_ser_buscado:
+                matched_user["role"] = "ser buscado"
+                matched_user["match_percentage"] = puede_ser_buscado_match_percentage
+                matched_user["meeting_point"] = min_distance_point_to_path["end_vid"]
             else:
-                matched_user['role'] = "buscar"
-                matched_user['match_percentage'] = puede_buscar_match_percentage
-                matched_user['meeting_point'] = min_distance_path_to_origin['end_vid']
+                matched_user["role"] = "buscar"
+                matched_user["match_percentage"] = puede_buscar_match_percentage
+                matched_user["meeting_point"] = min_distance_path_to_origin["end_vid"]
 
             matched_users.append(matched_user)
 
-    if not matched_users:
-        return "Didn't find compatible itineraries"
-    else:
-        """Returning matched users sorted by match percentage. Higher match first"""
-        return sorted(matched_users, key=lambda item: item["match_percentage"], reverse=True)
+    return matched_users
