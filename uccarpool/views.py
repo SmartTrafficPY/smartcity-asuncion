@@ -89,7 +89,7 @@ class UserItineraryView(viewsets.ModelViewSet):
             return Response(matched_users_sorted, status=status.HTTP_200_OK)
 
 
-class CarpoolView(viewsets.ReadOnlyModelViewSet):
+class CarpoolView(viewsets.ModelViewSet):  # viewsets.ReadOnlyModelViewSet
     queryset = Carpool.objects.all()
     serializer_class = CarpoolSerializer
     authentication_classes = (SessionAuthentication, TokenAuthentication)

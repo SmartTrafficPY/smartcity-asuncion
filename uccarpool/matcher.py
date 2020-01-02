@@ -1,9 +1,17 @@
 from datetime import timedelta
 
 from django.apps import apps
+from django.db.models import Q
+from rest_framework.exceptions import APIException
 from smrouter.utils import Router
 from uccarpool import heuristic_functions
-from uccarpool.models import ItineraryRoute, UserItinerary
+from uccarpool.models import Carpool, ItineraryRoute, UserItinerary
+
+
+class UserAlreadyInCarpool(APIException):
+    status_code = 420
+    default_detail = "The user is already in a carpool."
+    default_code = "service_unavailable"
 
 
 def calculateLogisticMatch(meeting_point, route):
@@ -66,8 +74,20 @@ def getRouteItinerary(itinerary):
     return path
 
 
+def isInCarpool(userUcarpoolingProfile, userItinerary):
+    """Returns true if the user is already in a carpool with that itinerary"""
+    carpools = Carpool.objects.all().filter(Q(driver=userUcarpoolingProfile) | Q(poolers=userUcarpoolingProfile))
+    if carpools:
+        return True
+    else:
+        return False
+
+
 def getMatchedUsers(userUcarpoolingProfile, userItinerary):
     """Procedure that returns the list of users who have a % match greater than 0 with user"""
+
+    if isInCarpool(userUcarpoolingProfile, userItinerary):
+        raise UserAlreadyInCarpool
 
     """Se obtienen los itinerarios compatibles con +- 15 minutos de diferencia para llegar al destino"""
     date_start = userItinerary.timeOfArrival - timedelta(
@@ -91,6 +111,10 @@ def getMatchedUsers(userUcarpoolingProfile, userItinerary):
         for another_user_itinerary in compatible_itineraries:
 
             """-----Filtro de Pre compatibilidad------"""
+
+            """Another user is already in a carpool"""
+            if isInCarpool(another_user_itinerary.ucarpoolingProfile, another_user_itinerary):
+                continue
 
             """Si las 2 personas son passengers entonces son incompatibles"""
             if userItinerary.isDriver is False and another_user_itinerary.isDriver is False:
@@ -165,7 +189,10 @@ def getMatchedUsers(userUcarpoolingProfile, userItinerary):
                     min_distance_path_to_origin, userItineraryRoute
                 )
 
-            matched_user = {"user": another_user_itinerary.ucarpoolingProfile.user.username}
+            matched_user = {
+                "user_id": another_user_itinerary.ucarpoolingProfile.id,
+                "user": another_user_itinerary.ucarpoolingProfile.user.username,
+            }
 
             if puede_ser_buscado and puede_buscar:
                 if puede_ser_buscado_match_percentage > puede_buscar_match_percentage:

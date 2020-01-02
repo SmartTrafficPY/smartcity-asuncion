@@ -72,7 +72,7 @@ class CarpoolSerializer(serializers.ModelSerializer):
 
         model = Carpool
 
-        fields = ("id", "driver", "poolers", "carpoolItinerary")
+        fields = ("id", "driver", "poolers", "route")
 
         read_only_fields = ("id",)
 

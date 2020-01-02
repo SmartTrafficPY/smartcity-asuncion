@@ -13,6 +13,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    # TODO CHANGE SERIALIZERS
     ucarpoolingprofile = ProfileSerializer(required=False)
     password = serializers.CharField(
         write_only=True,

@@ -86,7 +86,7 @@ class Carpool(models.Model):
         UcarpoolingProfile, on_delete=models.CASCADE, blank=True, null=True, related_name="driver"
     )
     poolers = models.ManyToManyField(UcarpoolingProfile, related_name="poolers")
-    route = models.ForeignKey(ItineraryRoute, on_delete=models.CASCADE, blank=True, null=True)
+    route = models.ForeignKey(UserItinerary, on_delete=models.CASCADE, blank=True, null=True)
 
 
 class RequestCarpool(models.Model):
