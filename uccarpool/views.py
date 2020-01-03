@@ -2,6 +2,7 @@ from django.db.models import Q
 from rest_framework import status, viewsets
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.decorators import action  # For adding actions to ViewSet
+from rest_framework.exceptions import APIException
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from smasu.authentication import IsCreateView, IsListView, IsSameUser, IsSuperUserOrStaff
@@ -22,6 +23,12 @@ from .serializers import (
 from django.apps import apps  # PRUEBA
 date_format = apps.get_app_config('uccarpool').common_instituion
 """
+
+
+class NoMatchForUserItinerary(APIException):
+    status_code = 204
+    default_detail = "Could not find any matches for this itinerary."
+    default_code = "no_content"
 
 
 class IsUcarpoolingUser(IsAuthenticated):
@@ -80,9 +87,7 @@ class UserItineraryView(viewsets.ModelViewSet):
         matched_users = getMatchedUsers(request_ucarpoolingProfile, itinerary)
 
         if not matched_users:
-            return Response(
-                {"detail": "Could not find any matches for this itinerary"}, status=status.HTTP_204_NO_CONTENT
-            )
+            raise NoMatchForUserItinerary
         else:
             """Returning matched users sorted by match percentage. Higher match first"""
             matched_users_sorted = sorted(matched_users, key=lambda item: item["match_percentage"], reverse=True)

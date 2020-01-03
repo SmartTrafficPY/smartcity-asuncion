@@ -59,7 +59,7 @@ class Router:
 
             if node_id_origin in path:
                 """The node is already in the path"""
-                return {'start_vid': node_id_origin, 'end_vid': node_id_origin, 'cost': 0}
+                return {"start_vid": node_id_origin, "end_vid": node_id_origin, "cost": 0}
 
             """Getting all distances from the point to the path"""
             query = """
@@ -74,6 +74,8 @@ class Router:
 
             cursor.execute(query)
             try:
+                if cursor.rowcount == 0:
+                    return {"cost": 99999999999}
                 min_distance = self.__singlefetch(cursor)
             except Exception:
                 raise Exception("An exception occurred when querying: \n" + query)
