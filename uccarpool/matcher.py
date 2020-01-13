@@ -14,6 +14,23 @@ class UserAlreadyInCarpool(APIException):
     default_code = "service_unavailable"
 
 
+def getMatchingItineraries(userUcarpoolingProfile, userItinerary):
+
+    date_start = userItinerary.timeOfArrival - timedelta(
+        minutes=apps.get_app_config("uccarpool").time_tolerance_early_in_minutes
+    )
+
+    date_finish = userItinerary.timeOfArrival + timedelta(
+        minutes=apps.get_app_config("uccarpool").time_tolerance_late_in_minutes
+    )
+
+    compatible_itineraries = UserItinerary.objects.filter(timeOfArrival__range=(date_start, date_finish)).exclude(
+        ucarpoolingProfile=userUcarpoolingProfile
+    )
+
+    return compatible_itineraries
+
+
 def calculateLogisticMatch(meeting_point, route):
     """Calculates the logistics aspect of the carpooling math formula"""
 
@@ -90,15 +107,7 @@ def getMatchedUsers(userUcarpoolingProfile, userItinerary):
         raise UserAlreadyInCarpool
 
     """Se obtienen los itinerarios compatibles con +- 15 minutos de diferencia para llegar al destino"""
-    date_start = userItinerary.timeOfArrival - timedelta(
-        minutes=apps.get_app_config("uccarpool").time_tolerance_early_in_minutes
-    )
-    date_finish = userItinerary.timeOfArrival + timedelta(
-        minutes=apps.get_app_config("uccarpool").time_tolerance_late_in_minutes
-    )
-    compatible_itineraries = UserItinerary.objects.filter(timeOfArrival__range=(date_start, date_finish)).exclude(
-        ucarpoolingProfile=userUcarpoolingProfile
-    )
+    compatible_itineraries = getMatchingItineraries(userUcarpoolingProfile, userItinerary)
 
     """Si hubieron personas compatibles con su horario"""
     matched_users = []
