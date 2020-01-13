@@ -51,6 +51,9 @@ class Router:
 
     def get_min_distance(self, point, path):
         """Returns the min distance from a point(latitude and longitude) to a path"""
+        # TODO Temporal, hay algunos registros que no tienen path porque no se pudo computar con driver_path
+        if not path:
+            return {"cost": 99999999999}
 
         with connections["map"].cursor() as cursor:
 
