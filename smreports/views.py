@@ -9,6 +9,7 @@ from smasu.authentication import IsCreateView, IsListView, IsSuperUserOrStaff, T
 from smasu.helpers import as_entity
 from smasu.models import Application
 from smevents.models import Event
+from smrouter.utils import Router
 
 from .models import Report, SmartMovingEventType, StatusUpdate
 from .parsers import ReportPoiGeoJSONParser
@@ -31,6 +32,7 @@ class ReportsView(viewsets.ModelViewSet):
 
     @receiver(post_save, sender=Report)
     def create_event_report(sender, instance, **kwargs):
+
         with transaction.atomic():
             if kwargs.get("created", False):
                 Event(
@@ -39,6 +41,8 @@ class ReportsView(viewsets.ModelViewSet):
                     agent=as_entity(instance.user_created),
                     position=instance.coordinates,
                 ).save()
+                instance.gid = Router.get_nearest_edge(instance.coordinates)
+                instance.save()
         return Response(status=200)
 
 
@@ -51,8 +55,8 @@ class StatusUpdatesView(viewsets.ModelViewSet):
     @receiver(post_save, sender=StatusUpdate)
     def create_event(sender, instance, **kwargs):
         report = instance.reportid
-        count_true = StatusUpdate.objects.filter(value=True, reportid=report).count()
-        count_false = StatusUpdate.objects.filter(value=False, reportid=report).count
+        count_true = int(StatusUpdate.objects.filter(value=True, reportid=report).count())
+        count_false = int(StatusUpdate.objects.filter(value=False, reportid=report).count())
         if count_true >= 0 and count_true < 3 and count_false >= 0 and count_false < 3:
             report.status = Report.STATE_UNKNOWN
         elif count_false > 0 and count_false < 3 and count_true >= 3:

@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "smovusers",
     "smreports",
     "smrouter",
+    "smnavigation",
     "rest_framework",
     "rest_framework.authtoken",
 ]

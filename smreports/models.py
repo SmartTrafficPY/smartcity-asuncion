@@ -1,12 +1,12 @@
 from enum import Enum
 
 from django.contrib.auth.models import User
-from django.contrib.gis.db.models import PointField
+from django.contrib.gis.db.models import BigIntegerField, PointField
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
 
-SmartMovingEventType = Enum("SmartMovingEventType", "CREATED_REPORT_POI MODIFIED_REPORT_POI ")
+SmartMovingEventType = Enum("SmartMovingEventType", "CREATED_REPORT_POI MODIFIED_REPORT_POI NAVIGATION_REQUEST")
 SmartMovingEventType.as_entity = lambda self: reverse("entities:smartmoving_event_types", args=(slugify(self.name),))
 # Create your models here.
 
@@ -29,6 +29,7 @@ class Report(models.Model):
     coordinates = PointField(blank=True, db_index=True)
     user_created = models.ForeignKey(User, on_delete=models.CASCADE)
     status = models.CharField(max_length=15, choices=STATE_CHOICES, default=STATE_UNKNOWN)
+    gid = BigIntegerField(blank=True)
 
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)

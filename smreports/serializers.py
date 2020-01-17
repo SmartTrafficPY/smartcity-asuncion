@@ -7,7 +7,7 @@ from .models import Report, StatusUpdate
 class ReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = Report
-        fields = ("url", "user_created", "report_type", "status", "modified", "coordinates")
+        fields = ("url", "user_created", "report_type", "status", "gid", "modified", "coordinates")
 
     def create(self, validated_data):
 
@@ -29,4 +29,5 @@ class StatusUpdateSerializer(serializers.ModelSerializer):
         with transaction.atomic():
 
             instance = StatusUpdate.objects.create(**validated_data)
+
         return instance
