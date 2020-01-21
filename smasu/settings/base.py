@@ -99,8 +99,8 @@ DATABASES = {
     "map": {
         "ENGINE": "django.contrib.gis.db.backends.postgis",
         "NAME": "asuncion",
-        "USER": "postgres",
-        "PASSWORD": "postgres",
+        "USER": "smarttraffic",
+        "PASSWORD": "smarttraffic",
         "HOST": "127.0.0.1",
         "PORT": "5432",
     },

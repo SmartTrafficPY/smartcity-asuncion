@@ -123,6 +123,10 @@ class Router:
             cursor.execute(query)
             with connections["map"].cursor() as cursorr:
                 query = """
+                CREATE TABLE IF NOT EXISTS costt(
+                gid BIGINT NOT NULL,
+                cost DOUBLE PRECISION
+                );
                 create or replace view cost{user} as (select * from costt);
                 """.format(
                     user=user
@@ -148,7 +152,7 @@ class Router:
 
             query = """
                 select q.*, the_geom from(select
-                nextval('sequence_1') as seq, j.node
+                nextval('osm_nodes_node_id_seq') as seq, j.node
                 from (
                 select c.*,case when c.path_seq = 1 then 0 else
                 sum(c.new_plus_cost) OVER (PARTITION BY c.path_id
