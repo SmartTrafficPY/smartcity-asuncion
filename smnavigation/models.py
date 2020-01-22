@@ -14,7 +14,7 @@ class NavigationRequest(models.Model):
     origin = PointField()
     destination = PointField()
     route = ArrayField(models.TextField(blank=True, null=True), default=list, blank=True, null=True)
-    start_time = models.DateTimeField(auto_now_add=False, blank=True, null=True)
+    start_time = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     finish_time = models.DateTimeField(auto_now_add=False, blank=True, null=True)
     finished = models.BooleanField(null=False, help_text="true if user finished the navigation, false if didn't")
     score = models.IntegerField(choices=SCORE_CHOICES, null=True, help_text="1 lowest score, 5 highest score")
