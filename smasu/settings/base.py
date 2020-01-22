@@ -46,6 +46,9 @@ INSTALLED_APPS = [
     "spusers",
     "splots",
     "smovusers",
+    "smreports",
+    "smrouter",
+    "smnavigation",
     "rest_framework",
     "rest_framework.authtoken",
 ]
@@ -92,12 +95,21 @@ DATABASES = {
         "PASSWORD": "smarttraffic",
         "HOST": "127.0.0.1",
         "PORT": "5432",
-    }
+    },
+    "map": {
+        "ENGINE": "django.contrib.gis.db.backends.postgis",
+        "NAME": "asuncion",
+        "USER": "postgres",
+        "PASSWORD": "postgres",
+        "HOST": "127.0.0.1",
+        "PORT": "5432",
+    },
 }
 
 CACHES = {
     "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache", "TIMEOUT": 60},
     "smartparking": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache", "TIMEOUT": 60},
+    "smartmoving": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache", "TIMEOUT": 60},
 }
 
 # Password validation
