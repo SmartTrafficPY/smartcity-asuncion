@@ -4,6 +4,7 @@ from django.dispatch import receiver
 from rest_framework import parsers, renderers, viewsets
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from smasu.authentication import (
     IsCreateView,
     IsListView,
@@ -46,7 +47,10 @@ class NavigationRequestView(viewsets.ModelViewSet):
                 destination = instance.destination
                 report_types_severe = instance.report_severe
                 report_types_light = instance.report_light
-
+                point_init = router.get_point_projected_to_location(origin)
+                point_end = router.get_point_projected_to_location(destination)
+                instance.origin = point_init
+                instance.destination = point_end
                 instance.route = router.pedestrian_path(
                     origin, destination, report_types_severe, report_types_light, instance.user_requested
                 )
@@ -57,4 +61,4 @@ class NavigationRequestView(viewsets.ModelViewSet):
                     agent=as_entity(instance.user_requested),
                     position=origin,
                 ).save()
-        return instance.route
+        return Response(status=200)

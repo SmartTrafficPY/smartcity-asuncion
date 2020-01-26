@@ -46,6 +46,21 @@ class Router:
 
         return node_id
 
+    def get_points_from_nearest_edge(self, cursor, point_location):
+        query = """
+            select x1,y1,x2,y2
+            from ways
+            ORDER BY ways.the_geom <-> ST_GeogFromText('{point_location}') LIMIT 1
+        """.format(
+            point_location=point_location
+        )
+        cursor.execute(query)
+
+        point = ()
+        for elem1, elem2, elem3, elem4 in cursor.fetchall():
+            point = (elem1, elem2, elem3, elem4)
+        return point
+
     def driver_path(self, origin, destination):
         """Returns the sequence of nodes that a driver has to go between origin an destination"""
 
@@ -69,6 +84,31 @@ class Router:
             path = self.__dictfetchall(cursor)
 
         return path
+
+    def get_point_projected_to_location(self, point_location):
+
+        with connections["map"].cursor() as cursor:
+            edge_points = {}
+            edge_points = self.get_points_from_nearest_edge(cursor, point_location)
+            query = """
+                WITH data AS (
+                SELECT 'LINESTRING ({x1} {y1}, {x2} {y2})' AS road,
+                'POINT({x} {y})' AS poi)
+                SELECT ST_AsText(
+                ST_Line_Interpolate_Point(road, ST_Line_Locate_Point(road, poi))) AS projected_poi
+                FROM data;
+             """.format(
+                x1=edge_points[0],
+                y1=edge_points[1],
+                x2=edge_points[2],
+                y2=edge_points[3],
+                x=point_location.x,
+                y=point_location.y,
+            )
+            cursor.execute(query)
+            point = (cursor.fetchone())[0]
+
+        return point
 
     def get_nearest_edge(textgeometry):
 
