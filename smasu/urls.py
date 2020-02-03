@@ -43,4 +43,5 @@ urlpatterns = [
     path("api/", include(router.urls)),
     path("api/smartparking/", include("spusers.urls")),
     path("api/smartmoving/", include("smovusers.urls")),
+    path("api/ucarpooling/", include("ucusers.urls")),
 ]

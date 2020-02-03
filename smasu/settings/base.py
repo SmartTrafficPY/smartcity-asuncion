@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "spusers",
     "splots",
     "smovusers",
+    "ucusers",
     "smrouter",
     "rest_framework",
     "rest_framework.authtoken",
