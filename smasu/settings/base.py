@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "splots",
     "smovusers",
     "ucusers",
+    "smrouter",
     "rest_framework",
     "rest_framework.authtoken",
 ]
@@ -93,7 +94,15 @@ DATABASES = {
         "PASSWORD": "smarttraffic",
         "HOST": "127.0.0.1",
         "PORT": "5432",
-    }
+    },
+    "map": {
+        "ENGINE": "django.contrib.gis.db.backends.postgis",
+        "NAME": "asuncion",
+        "USER": "postgres",
+        "PASSWORD": "postgres",
+        "HOST": "127.0.0.1",
+        "PORT": "5432",
+    },
 }
 
 CACHES = {

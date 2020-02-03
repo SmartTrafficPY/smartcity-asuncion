@@ -2,13 +2,15 @@ version: '3'
 
 services:
   postgres:
-    image: mdillon/postgis:11
+    image: pgrouting/pgrouting:v2.6.3-postgresql_11
     volumes:
       - db-data:/var/lib/postgresql/data
-    restart: always
+    #restart: always
     ports:
       - "5432:5432"
     # env_file: ./postgres-db/.env
+    environment:
+      - POSTGRES_PASSWORD=postgres
     networks:
       - smarttraffic_conn
 
