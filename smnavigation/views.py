@@ -61,6 +61,5 @@ class NavigationRequestView(viewsets.ModelViewSet):
                     agent=as_entity(instance.user_requested),
                     position=origin,
                 ).save()
-                pkk = instance.pk
-                print(pkk)
+
         return Response(status=200)
