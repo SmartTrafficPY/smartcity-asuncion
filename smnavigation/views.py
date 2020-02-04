@@ -33,7 +33,7 @@ class NavigationRequestView(viewsets.ModelViewSet):
     queryset = NavigationRequest.objects.all()
     serializer_class = NavigationRequestSerializer
     authentication_classes = (SessionAuthentication, TokenAuthenticationInQuery)
-    permission_classes = (IsSuperUserOrStaff | ((IsCreateView | IsRetrieveView | IsListView) & IsSmartMovingUser),)
+    permission_classes = (IsSuperUserOrStaff | ((IsListView | IsCreateView | IsRetrieveView) & IsSmartMovingUser),)
     parser_classes = (GeoJSONParser, parsers.FormParser)
     renderer_classes = [GeoJSONRenderer, renderers.BrowsableAPIRenderer]
 
@@ -61,4 +61,6 @@ class NavigationRequestView(viewsets.ModelViewSet):
                     agent=as_entity(instance.user_requested),
                     position=origin,
                 ).save()
+                pkk = instance.pk
+                print(pkk)
         return Response(status=200)

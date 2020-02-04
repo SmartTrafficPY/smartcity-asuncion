@@ -168,6 +168,7 @@ class Router:
                 cost DOUBLE PRECISION
                 );
                 create or replace view cost{user} as (select * from costt);
+                DELETE FROM cost{user};
                 """.format(
                     user=user
                 )
@@ -191,7 +192,7 @@ class Router:
             node_id_destination = self.get_nearest_node(cursor, destination.x, destination.y)
 
             query = """
-                select q.*, the_geom from(select
+                select q.*, lon, lat from(select
                 nextval('osm_nodes_node_id_seq') as seq, j.node
                 from (
                 select c.*,case when c.path_seq = 1 then 0 else
@@ -228,8 +229,7 @@ class Router:
                 node_id_origin=node_id_origin, node_id_destination=node_id_destination, user=user
             )
             cursor.execute(query)
-            path = self.__dictfetchall(cursor)
-
+            path = cursor.fetchall()
         return path
 
     def pedestrian_path(self, origin, destination, report_types_severe, report_type_light, user):
