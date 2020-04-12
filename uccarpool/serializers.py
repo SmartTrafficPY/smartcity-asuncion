@@ -4,7 +4,7 @@ from smrouter.utils import Router
 from ucusers.models import UcarpoolingProfile
 from ucusers.serializers import ProfileSerializer
 
-from .models import Carpool, ItineraryRoute, RequestCarpool, UserItinerary
+from .models import Carpool, CarpoolRating, ItineraryRoute, RequestCarpool, UserItinerary
 
 
 class UserItinerarySerializer(serializers.ModelSerializer):
@@ -48,7 +48,12 @@ class UserItinerarySerializer(serializers.ModelSerializer):
             router = Router()
             path = router.driver_path(origin=itinerary_created.origin, destination=itinerary_created.destination)
             # Guardar en el modelo ItineraryRoute
-            ItineraryRoute.objects.create(itinerary=itinerary_created, path=path["id"], aggCost=path["agg_cost"])
+            ItineraryRoute.objects.create(
+                itinerary=itinerary_created,
+                pathLatitude=path["lat"],
+                pathLongitude=path["lon"],
+                aggCost=path["agg_cost"],
+            )
 
         """ Create a new user with encypted password and return it """
         return itinerary_created
@@ -104,4 +109,27 @@ class RequestCarpoolDetailSerializer(RequestCarpoolSerializer):
     """Serializer for detailed RequestCarpool"""
 
     recipient = ProfileSerializer()
+    subject = CarpoolDetailSerializer()
+
+
+class CarpoolRatingSerializer(serializers.ModelSerializer):
+    """ Serializer for the CarpoolRating model """
+
+    qualified = serializers.PrimaryKeyRelatedField(queryset=UcarpoolingProfile.objects.all())
+
+    subject = serializers.PrimaryKeyRelatedField(queryset=Carpool.objects.all())
+
+    class Meta:
+
+        model = CarpoolRating
+
+        fields = ("id", "qualified", "subject")
+
+        read_only_fields = ("id",)
+
+
+class CarpoolRatingDetailSerializer(CarpoolRatingSerializer):
+    """Serializer for detailed CarpoolRating"""
+
+    qualified = ProfileSerializer()
     subject = CarpoolDetailSerializer()

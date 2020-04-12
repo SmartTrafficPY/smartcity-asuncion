@@ -9,7 +9,7 @@ class UccarpoolConfig(AppConfig):
 
     common_instituion = "Universidad Catolica"
     institution_location = {"latitude": -25.324488, "longitude": -57.635435}
-    min_walking_distance = 500  # In meters
+    max_walking_distance = 500  # In meters
 
     personality_weights_proportion = 0.15  # 15%
 

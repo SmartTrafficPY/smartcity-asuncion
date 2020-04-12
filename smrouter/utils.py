@@ -1,5 +1,6 @@
 from django.contrib.gis.geos import Point
 from django.db import connections
+from geopy.distance import geodesic
 
 
 class Router:
@@ -49,6 +50,42 @@ class Router:
 
         return node_id
 
+    def get_min_distance_point_to_path(self, point, pathLatitude, pathLongitude, agg_cost):
+        """Returns the min distance from a point(latitude and longitude) to a path using euclidean distance"""
+        if not pathLatitude:
+            return {"cost": 99999999999}
+
+        """Getting the ids of the nodes nearest to the origin and destination"""
+        with connections["map"].cursor() as cursor:
+
+            meeting_point = {
+                "start_vid": 0,
+                "end_vid": 0,
+                "latitude": 0,
+                "longitude": 0,
+                "cost": 10000000000,
+                "agg_cost": 0,
+            }
+
+            origin = (point.y, point.x)
+
+            for index in range(len(pathLatitude)):
+
+                distance = geodesic(origin, (pathLatitude[index], pathLongitude[index])).meters
+
+                if distance < meeting_point["cost"]:
+                    meeting_point["latitude"] = pathLatitude[index]
+                    meeting_point["longitude"] = pathLongitude[index]
+                    meeting_point["cost"] = distance
+                    meeting_point["agg_cost"] = agg_cost[index]
+
+            meeting_point["start_vid"] = self.get_nearest_node(cursor, point.x, point.y)
+            meeting_point["end_vid"] = self.get_nearest_node(
+                cursor, meeting_point["longitude"], meeting_point["latitude"]
+            )
+
+        return meeting_point
+
     def get_min_distance(self, point, path):
         """Returns the min distance from a point(latitude and longitude) to a path"""
         # TODO Temporal, hay algunos registros que no tienen path porque no se pudo computar con driver_path
@@ -57,7 +94,7 @@ class Router:
 
         with connections["map"].cursor() as cursor:
 
-            """Getting the ids of the nodes nearest to the origin and dstination"""
+            """Getting the ids of the nodes nearest to the origin and destination"""
             node_id_origin = self.get_nearest_node(cursor, point.x, point.y)
 
             if node_id_origin in path:
@@ -96,7 +133,7 @@ class Router:
             node_id_destination = self.get_nearest_node(cursor, destination.x, destination.y)
 
             query = """
-            SELECT nodes.id, agg_cost * 100000 as agg_cost
+            SELECT nodes.lat, nodes.lon, agg_cost * 100000 as agg_cost
             from pgr_dijkstra('SELECT gid AS id, source, target, cost, reverse_cost, x1, y1, x2, y2  FROM ways',
             {node_id_origin}, {node_id_destination}) as path
             INNER JOIN ways_vertices_pgr as nodes on nodes.id=path.node

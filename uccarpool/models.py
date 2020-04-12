@@ -59,7 +59,8 @@ class ItineraryRoute(models.Model):
     """
 
     itinerary = models.ForeignKey(UserItinerary, on_delete=models.CASCADE, blank=True, null=True)
-    path = ArrayField(models.IntegerField(blank=True, null=True), default=list, blank=True, null=True)
+    pathLatitude = ArrayField(models.FloatField(blank=True, null=True), default=list, blank=True, null=True)
+    pathLongitude = ArrayField(models.FloatField(blank=True, null=True), default=list, blank=True, null=True)
     aggCost = ArrayField(models.FloatField(blank=True, null=True), default=list, blank=True, null=True)
     timestamps = ArrayField(models.DateTimeField(auto_now_add=False, blank=True, null=True), blank=True, null=True)
 
@@ -106,4 +107,24 @@ class RequestCarpool(models.Model):
 
     sender = models.ForeignKey(UcarpoolingProfile, on_delete=models.CASCADE, related_name="sender")
     recipient = models.ForeignKey(UcarpoolingProfile, on_delete=models.CASCADE, related_name="recipient")
+    subject = models.ForeignKey(Carpool, on_delete=models.CASCADE, blank=True, null=True)
+
+
+class CarpoolRating(models.Model):
+    """
+    The rating an user asses over another user based on their mutual carpool trip
+    ...
+
+    Attributes
+    ----------
+    qualifier : UcarpoolingProfile
+        The user that assess the trip
+    qualified : UcarpoolingProfile
+        The user that is assessed ny the qualifier
+    subject : Carpool
+        Which carpool this assessment is about
+    """
+
+    qualifier = models.ForeignKey(UcarpoolingProfile, on_delete=models.CASCADE, related_name="qualifier")
+    qualified = models.ForeignKey(UcarpoolingProfile, on_delete=models.CASCADE, related_name="qualified")
     subject = models.ForeignKey(Carpool, on_delete=models.CASCADE, blank=True, null=True)
